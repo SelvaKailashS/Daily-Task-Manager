@@ -8,7 +8,7 @@ A military-tactical themed habit tracker built with Python Flask. Track your dai
 
 ## 🖥️ Live Demo
 
-> Deploy on Render and paste your URL here.
+> (https://stoners.onrender.com)
 
 ---
 
