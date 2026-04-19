@@ -7,6 +7,7 @@ import json
 import os
 
 app = Flask(__name__)
+app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'stoners-secret-2025')
 DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///stoners.db')
 if DATABASE_URL.startswith('postgres://'):
@@ -320,7 +321,8 @@ def profile():
                            habits=habits, cats=cats)
     with app.app_context():
         db.create_all()
-
+import logging
+logging.basicConfig(level=logging.DEBUG)
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
