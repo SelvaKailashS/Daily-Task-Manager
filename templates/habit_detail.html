@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}{{ habit.name }} — MISSION BRIEF{% endblock %}
+{% block extra_css %}
+<style>
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-top:10px; }
+.cal-lbl  { text-align:center; font-family:'Share Tech Mono',monospace; font-size:9px; font-weight:400; color:var(--text3); padding-bottom:4px; text-transform:uppercase; letter-spacing:1px; }
+.cal-day  {
+  aspect-ratio:1; border-radius:2px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Share Tech Mono',monospace; font-size:10px;
+  background:var(--card2); color:var(--text3); transition:all 0.15s;
+}
+.cal-day.done  { background:var(--hc); color:var(--bg); font-weight:700; }
+.cal-day.today { border:1px solid var(--olive2); color:var(--olive2); }
+.cal-day.done.today { border-color:#fff; color:var(--bg); }
+.cal-day.empty { background:transparent; }
+</style>
+{% endblock %}
+{% block content %}
+
+<div style="padding:54px 20px 14px;background:var(--bg2);
+            border-bottom:2px solid var(--olive);" class="color-{{ habit.color }}">
+  <a href="/" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);
+                     text-decoration:none;text-transform:uppercase;letter-spacing:1.5px;">← BACK TO OPS</a>
+  <div style="display:flex;align-items:center;gap:14px;margin-top:12px;">
+    <div style="width:58px;height:58px;border-radius:4px;background:var(--hcl);
+                border:2px solid var(--hc);display:flex;align-items:center;
+                justify-content:center;font-size:28px;flex-shrink:0;">{{ habit.emoji }}</div>
+    <div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--olive2);
+                  letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;">// MISSION BRIEF</div>
+      <div style="font-family:'Russo One',sans-serif;font-size:22px;color:var(--tan);
+                  text-transform:uppercase;letter-spacing:1px;">{{ habit.name }}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);margin-top:2px;">
+        OBJECTIVE: {{ habit.goal }}-DAY DEPLOYMENT
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="padding:14px;">
+
+  <!-- STATS -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+    <div class="card" style="text-align:center;border-left:3px solid var(--amber);">
+      <div style="font-family:'Russo One',sans-serif;font-size:28px;color:var(--amber);line-height:1;">{{ streak }}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);
+                  text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">STREAK 🔥</div>
+    </div>
+    <div class="card" style="text-align:center;border-left:3px solid var(--olive2);">
+      <div style="font-family:'Russo One',sans-serif;font-size:28px;color:var(--olive2);line-height:1;">{{ total }}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);
+                  text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">DAYS DONE</div>
+    </div>
+    <div class="card" style="text-align:center;border-left:3px solid var(--green2);">
+      <div style="font-family:'Russo One',sans-serif;font-size:28px;color:var(--green2);line-height:1;">{{ progress }}%</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);
+                  text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">OBJECTIVE</div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="card" style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);
+                   text-transform:uppercase;letter-spacing:1px;">// MISSION PROGRESS</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--tan);">{{ total }}/{{ habit.goal }}</span>
+    </div>
+    <div style="background:var(--border);height:6px;overflow:hidden;">
+      <div style="height:100%;background:linear-gradient(90deg,var(--olive),var(--olive2));width:{{ progress }}%;transition:width 0.5s;"></div>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="card color-{{ habit.color }}" style="margin-bottom:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <a href="/habit/{{ habit.id }}?year={{ prev_year }}&month={{ prev_month }}"
+         style="font-family:'Share Tech Mono',monospace;color:var(--text2);text-decoration:none;
+                font-size:18px;padding:4px;">‹</a>
+      <span style="font-family:'Russo One',sans-serif;font-size:15px;color:var(--tan);
+                   text-transform:uppercase;letter-spacing:1.5px;">{{ month_name }}</span>
+      <a href="/habit/{{ habit.id }}?year={{ next_year }}&month={{ next_month }}"
+         style="font-family:'Share Tech Mono',monospace;color:var(--text2);text-decoration:none;
+                font-size:18px;padding:4px;">›</a>
+    </div>
+    <div class="cal-grid">
+      {% for d in ['M','T','W','T','F','S','S'] %}
+        <div class="cal-lbl">{{ d }}</div>
+      {% endfor %}
+      {% for _ in range(first_weekday) %}
+        <div class="cal-day empty"></div>
+      {% endfor %}
+      {% for day in range(1, days+1) %}
+        {% set is_done  = logs.get(day, False) %}
+        {% set is_today = (today.year == year and today.month == month and today.day == day) %}
+        <div class="cal-day {% if is_done %}done{% endif %} {% if is_today %}today{% endif %}">{{ day }}</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- DELETE -->
+  <form method="POST" action="/delete_habit/{{ habit.id }}"
+        onsubmit="return confirm('ABORT MISSION? ALL LOGS WILL BE DESTROYED.')">
+    <button type="submit"
+            style="width:100%;padding:12px;border-radius:3px;
+                   background:transparent;border:1px solid rgba(176,48,48,0.4);
+                   color:var(--red2);font-family:'Share Tech Mono',monospace;
+                   font-size:11px;cursor:pointer;text-transform:uppercase;letter-spacing:2px;">
+      // ABORT MISSION
+    </button>
+  </form>
+
+</div>
+{% endblock %}

@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% block title %}STONERS — INTEL{% endblock %}
+{% block extra_css %}
+<style>
+.stat-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-bottom: 14px;
+}
+.stat-tile {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 4px; padding: 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.stat-tile-icon { font-size: 24px; flex-shrink: 0; }
+.stat-tile-num {
+  font-family: 'Russo One', sans-serif;
+  font-size: 26px; line-height: 1; color: var(--tan);
+}
+.stat-tile-lbl {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 1px; margin-top: 2px;
+}
+.chart-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--olive);
+  border-radius: 4px; padding: 14px; margin-bottom: 12px;
+}
+.chart-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; color: var(--text2);
+  text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px;
+}
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>INTEL REPORT 📋</h1>
+  <p>// MISSION PERFORMANCE ANALYSIS //</p>
+</div>
+
+<div style="padding:14px;">
+
+  <!-- STAT TILES — like screenshot -->
+  <div class="stat-grid">
+    <div class="stat-tile">
+      <div class="stat-tile-icon">🎯</div>
+      <div>
+        <div class="stat-tile-num" style="color:var(--olive2);">{{ data|length }}</div>
+        <div class="stat-tile-lbl">Total Habits</div>
+      </div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-icon">📋</div>
+      <div>
+        <div class="stat-tile-num" style="color:var(--amber);">{{ total_completions }}</div>
+        <div class="stat-tile-lbl">Total Completions</div>
+      </div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-icon">📈</div>
+      <div>
+        <div class="stat-tile-num" style="color:var(--green2);">{{ avg_rate }}%</div>
+        <div class="stat-tile-lbl">Avg Completion Rate</div>
+      </div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-icon">🔥</div>
+      <div>
+        <div class="stat-tile-num" style="color:var(--red2);">{{ longest_streak }}</div>
+        <div class="stat-tile-lbl">Longest Streak</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BEST PERFORMER -->
+  {% if best %}
+  <div style="background:var(--amber3);border:1px solid rgba(212,135,10,0.3);
+              border-left:3px solid var(--amber);border-radius:4px;
+              padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:14px;">
+    <div style="font-size:32px;">{{ best.habit.emoji }}</div>
+    <div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--amber);
+                  letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;">// TOP PERFORMER</div>
+      <div style="font-family:'Russo One',sans-serif;font-size:17px;color:var(--tan);
+                  text-transform:uppercase;letter-spacing:1px;">{{ best.habit.name }}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--amber);margin-top:2px;">
+        🔥 {{ best.streak }}-DAY ACTIVE STREAK
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- CHART 1: Completions per habit -->
+  {% if data %}
+  <div class="chart-box">
+    <div class="chart-title">// COMPLETION RATES BY MISSION</div>
+    <canvas id="chartHabits" height="180"></canvas>
+  </div>
+
+  <!-- CHART 2: Weekly trend -->
+  <div class="chart-box">
+    <div class="chart-title">// WEEKLY COMPLETION TREND</div>
+    <canvas id="chartWeek" height="160"></canvas>
+  </div>
+  {% endif %}
+
+  <!-- MISSION LIST -->
+  {% if data %}
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);
+                text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">// ALL MISSIONS</div>
+    {% for hd in data %}
+    <a href="/habit/{{ hd.habit.id }}" style="text-decoration:none;">
+      <div class="card color-{{ hd.habit.color }}"
+           style="margin-bottom:8px;display:flex;align-items:center;gap:12px;border-left:3px solid var(--hc);">
+        <div style="width:44px;height:44px;border-radius:4px;background:var(--hcl);
+                    display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">
+          {{ hd.habit.emoji }}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:'Russo One',sans-serif;font-size:15px;color:var(--tan);
+                      text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;
+                      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ hd.habit.name }}</div>
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:5px;">
+            <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--amber);">🔥 {{ hd.streak }}D</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);">{{ hd.total }}/{{ hd.habit.goal }}</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--olive2);">{{ hd.progress }}%</span>
+          </div>
+          <div style="background:var(--border);height:3px;overflow:hidden;">
+            <div style="height:100%;background:var(--hc);width:{{ hd.progress }}%;"></div>
+          </div>
+        </div>
+        <div style="font-family:'Share Tech Mono',monospace;color:var(--text3);font-size:16px;">›</div>
+      </div>
+    </a>
+    {% endfor %}
+  {% else %}
+    <div class="empty">
+      <div class="empty-icon">📋</div>
+      <h3>NO INTEL AVAILABLE</h3>
+      <p>ASSIGN MISSIONS FROM THE OPS SCREEN.</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const labels  = {{ chart_labels|safe }};
+const totals  = {{ chart_totals|safe }};
+const streaks = {{ chart_streaks|safe }};
+const wLabels = {{ week_labels|safe }};
+const wCounts = {{ week_counts|safe }};
+
+const olive  = '#8a9e4a';
+const oliveD = 'rgba(107,124,58,0.2)';
+const amber  = '#d4870a';
+const amberD = 'rgba(212,135,10,0.2)';
+const gridC  = 'rgba(255,255,255,0.06)';
+const textC  = '#8a8570';
+
+Chart.defaults.color = textC;
+Chart.defaults.borderColor = gridC;
+
+// Chart 1 — bar chart per habit
+if (labels.length > 0) {
+  new Chart(document.getElementById('chartHabits'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Completions',
+        data: totals,
+        backgroundColor: olive,
+        borderColor: '#adc05a',
+        borderWidth: 1,
+        borderRadius: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e2219',
+          borderColor: '#363b2c',
+          borderWidth: 1,
+          titleFont: { family: 'Share Tech Mono' },
+          bodyFont:  { family: 'Share Tech Mono' },
+        }
+      },
+      scales: {
+        x: { grid: { color: gridC }, ticks: { font: { family: 'Share Tech Mono', size: 10 } } },
+        y: { grid: { color: gridC }, ticks: { font: { family: 'Share Tech Mono', size: 10 } }, beginAtZero: true }
+      }
+    }
+  });
+
+  // Chart 2 — line chart weekly trend
+  new Chart(document.getElementById('chartWeek'), {
+    type: 'line',
+    data: {
+      labels: wLabels,
+      datasets: [{
+        label: 'Habits Done',
+        data: wCounts,
+        borderColor: amber,
+        backgroundColor: amberD,
+        pointBackgroundColor: amber,
+        pointRadius: 5,
+        tension: 0.35,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e2219',
+          borderColor: '#363b2c',
+          borderWidth: 1,
+          titleFont: { family: 'Share Tech Mono' },
+          bodyFont:  { family: 'Share Tech Mono' },
+        }
+      },
+      scales: {
+        x: { grid: { color: gridC }, ticks: { font: { family: 'Share Tech Mono', size: 10 } } },
+        y: { grid: { color: gridC }, ticks: { font: { family: 'Share Tech Mono', size: 10 }, stepSize: 1 }, beginAtZero: true }
+      }
+    }
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}STONERS — DOSSIER{% endblock %}
+{% block content %}
+<div style="padding:54px 20px 20px;background:var(--bg2);
+            border-bottom:2px solid var(--olive);">
+
+  <!-- DOSSIER CARD -->
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;
+              padding-bottom:14px;border-bottom:1px solid var(--border);">
+    <div style="width:72px;height:72px;border-radius:4px;
+                background:var(--olive3);border:2px solid var(--olive);
+                display:flex;align-items:center;justify-content:center;
+                font-size:38px;flex-shrink:0;">{{ user.avatar }}</div>
+    <div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--olive2);
+                  letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;">// OPERATIVE DOSSIER</div>
+      <div style="font-family:'Russo One',sans-serif;font-size:22px;color:var(--tan);
+                  text-transform:uppercase;letter-spacing:1.5px;">{{ user.username }}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);margin-top:2px;">{{ user.email }}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);margin-top:2px;">
+        ENLISTED: {{ user.created_at.strftime('%d %b %Y').upper() }}
+      </div>
+    </div>
+  </div>
+
+  <!-- RANK BADGE -->
+  <div style="background:var(--olive3);border:1px solid rgba(107,124,58,0.3);
+              border-radius:3px;padding:8px 14px;text-align:center;margin-bottom:14px;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--olive2);
+                letter-spacing:2px;text-transform:uppercase;">
+      {% if rate >= 80 %}🏆 RANK: ELITE OPERATOR
+      {% elif rate >= 60 %}🎖️ RANK: STAFF SERGEANT
+      {% elif rate >= 40 %}⭐ RANK: CORPORAL
+      {% else %}🪖 RANK: RECRUIT
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div style="padding:14px;">
+
+  <!-- STATS GRID -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+    <div class="card" style="text-align:center;">
+      <div style="font-family:'Russo One',sans-serif;font-size:32px;color:var(--olive2);line-height:1;">{{ total }}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);
+                  text-transform:uppercase;letter-spacing:.8px;margin-top:3px;">REPS LOGGED</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-family:'Russo One',sans-serif;font-size:32px;color:var(--green2);line-height:1;">{{ done }}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);
+                  text-transform:uppercase;letter-spacing:.8px;margin-top:3px;">MISSIONS DONE</div>
+    </div>
+  </div>
+
+  <!-- COMPLETION RATE -->
+  <div class="card" style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:11px;
+                   color:var(--text2);text-transform:uppercase;letter-spacing:1px;">// MISSION SUCCESS RATE</span>
+      <span style="font-family:'Russo One',sans-serif;font-size:20px;color:var(--olive2);">{{ rate }}%</span>
+    </div>
+    <div style="background:var(--border);height:6px;border-radius:0;overflow:hidden;">
+      <div style="height:100%;background:linear-gradient(90deg,var(--olive),var(--olive2));
+                  width:{{ rate }}%;transition:width 0.5s;"></div>
+    </div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);
+                margin-top:8px;letter-spacing:0.5px;">
+      {% if rate >= 80 %}[COMMENDATION] OUTSTANDING PERFORMANCE.
+      {% elif rate >= 50 %}[STATUS] ACCEPTABLE. PUSH FOR EXCELLENCE.
+      {% else %}[ALERT] PERFORMANCE BELOW TARGET. STEP IT UP.
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- MISSION BREAKDOWN -->
+  {% if cats %}
+  <div class="card" style="margin-bottom:14px;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);
+                text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">// MISSION BREAKDOWN</div>
+    {% for cat, count in cats %}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:12px;
+                   color:var(--tan);text-transform:uppercase;letter-spacing:0.5px;">{{ cat }}</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:80px;background:var(--border);height:4px;overflow:hidden;">
+          <div style="height:100%;background:var(--olive2);
+                      width:{{ (count / total * 100)|int if total else 0 }}%"></div>
+        </div>
+        <span style="font-family:'Russo One',sans-serif;font-size:16px;color:var(--olive2);">{{ count }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <a href="/logout"
+     style="display:block;padding:13px;border-radius:3px;
+            background:transparent;border:1px solid var(--border2);
+            text-align:center;font-family:'Share Tech Mono',monospace;
+            font-size:12px;font-weight:400;color:var(--text3);
+            text-decoration:none;text-transform:uppercase;letter-spacing:2px;">
+    // EVAC / SIGN OUT
+  </a>
+
+</div>
+{% endblock %}

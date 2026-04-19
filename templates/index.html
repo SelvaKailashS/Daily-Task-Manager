@@ -1,0 +1,379 @@
+{% extends 'base.html' %}
+{% block title %}STONERS — DAILY OPS{% endblock %}
+{% block extra_css %}
+<style>
+/* MISSION HEADER */
+.mission-header {
+  padding: 54px 0 0;
+  background: var(--bg2);
+  border-bottom: 2px solid var(--olive);
+}
+.mh-top {
+  padding: 0 20px 16px;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.mh-left {}
+.mh-codename {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; color: var(--olive2); letter-spacing: 3px;
+  text-transform: uppercase; margin-bottom: 4px;
+}
+.mh-name {
+  font-family: 'Russo One', sans-serif;
+  font-size: 28px; color: var(--tan);
+  text-transform: uppercase; letter-spacing: 2px; line-height: 1;
+}
+.mh-date {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; color: var(--text2); letter-spacing: 1px; margin-top: 4px;
+}
+
+/* Tactical ring */
+.tac-ring { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
+.tac-ring svg { transform: rotate(-90deg); }
+.tac-ring-inner {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.tac-pct { font-family: 'Russo One', sans-serif; font-size: 18px; color: var(--olive2); line-height: 1; }
+.tac-lbl { font-family: 'Share Tech Mono', monospace; font-size: 8px; color: var(--text3); letter-spacing: 1px; }
+
+/* SITREP (stat strip) */
+.sitrep {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--border);
+}
+.sitrep-item {
+  padding: 10px 8px; text-align: center;
+  border-right: 1px solid var(--border);
+}
+.sitrep-item:last-child { border-right: none; }
+.sitrep-num {
+  font-family: 'Russo One', sans-serif; font-size: 22px; line-height: 1;
+}
+.sitrep-lbl {
+  font-family: 'Share Tech Mono', monospace; font-size: 9px;
+  color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px;
+}
+
+/* COMMS BANNER */
+.comms {
+  margin: 10px 14px;
+  padding: 10px 14px;
+  background: var(--olive3);
+  border: 1px solid rgba(107,124,58,0.3);
+  border-left: 3px solid var(--olive2);
+  border-radius: 3px;
+  display: flex; align-items: center; gap: 10px;
+}
+.comms-icon { font-size: 16px; flex-shrink: 0; }
+.comms-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px; color: var(--olive2); letter-spacing: 0.5px;
+}
+
+/* SECTION HEADER */
+.sec-hd {
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px 8px;
+}
+.sec-hd-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; color: var(--text2);
+  text-transform: uppercase; letter-spacing: 2px; white-space: nowrap;
+}
+.sec-hd-line { flex: 1; height: 1px; background: var(--border); }
+.sec-hd-count {
+  font-family: 'Share Tech Mono', monospace; font-size: 10px;
+  color: var(--olive2); background: var(--olive3);
+  border: 1px solid rgba(107,124,58,0.3);
+  border-radius: 2px; padding: 2px 8px;
+}
+
+/* MISSION CARD */
+.mission-card {
+  margin: 0 12px 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.15s;
+  position: relative;
+}
+.mission-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px; background: var(--hc);
+}
+.mission-card.done { opacity: 0.5; }
+.mission-card.done .mission-name { text-decoration: line-through; color: var(--text3); }
+
+.mc-inner {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 12px 12px 18px;
+}
+
+.mc-icon {
+  width: 44px; height: 44px; border-radius: 4px;
+  background: var(--hcl); border: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+
+.mc-body { flex: 1; min-width: 0; }
+.mission-name {
+  font-family: 'Russo One', sans-serif;
+  font-size: 16px; color: var(--tan); text-transform: uppercase;
+  letter-spacing: 0.5px; line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mc-meta {
+  display: flex; align-items: center; gap: 8px; margin-top: 5px; flex-wrap: wrap;
+}
+.mc-streak {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; color: var(--text2); letter-spacing: 0.5px;
+}
+.mc-streak.hot { color: var(--amber); }
+.mc-prog-bar { height: 3px; background: var(--border); border-radius: 0; margin-top: 7px; overflow: hidden; }
+.mc-prog-fill { height: 100%; background: var(--hc); transition: width 0.4s; }
+.mission-card.done .mc-prog-fill { background: var(--green2); }
+
+/* CONFIRM BUTTON */
+.confirm-btn {
+  width: 36px; height: 36px; border-radius: 3px;
+  border: 2px solid var(--border2);
+  background: transparent; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; cursor: pointer; transition: all 0.2s; color: transparent;
+}
+.confirm-btn.done { background: var(--green); border-color: var(--green2); color: #fff; font-size: 16px; }
+.confirm-btn:hover:not(.done) { border-color: var(--olive2); }
+</style>
+{% endblock %}
+{% block content %}
+
+<!-- MISSION HEADER -->
+<div class="mission-header">
+  <div class="mh-top">
+    <div class="mh-left">
+      <div class="mh-codename">// DAILY OPERATIONS //</div>
+      <div class="mh-name">SOLDIER {{ user.username }}</div>
+      <div class="mh-date">{{ today.strftime('%d %b %Y').upper() }} · {{ now.strftime('%H:%M') }} HRS</div>
+    </div>
+    <!-- RING -->
+    {% set pct  = (done_count / total_count * 100)|int if total_count else 0 %}
+    {% set circ = 188 %}
+    {% set off  = circ - (circ * pct / 100) %}
+    <div class="tac-ring">
+      <svg width="72" height="72" viewBox="0 0 72 72">
+        <circle cx="36" cy="36" r="30" fill="none" stroke="#2a2e22" stroke-width="5"/>
+        <circle cx="36" cy="36" r="30" fill="none" stroke="#8a9e4a" stroke-width="5"
+                stroke-dasharray="{{ circ }}" stroke-dashoffset="{{ off }}"
+                stroke-linecap="square"/>
+      </svg>
+      <div class="tac-ring-inner">
+        <div class="tac-pct">{{ pct }}%</div>
+        <div class="tac-lbl">DONE</div>
+      </div>
+    </div>
+  </div>
+  <!-- SITREP -->
+  <div class="sitrep">
+    <div class="sitrep-item">
+      <div class="sitrep-num" style="color:var(--olive2);">{{ total_count }}</div>
+      <div class="sitrep-lbl">MISSIONS</div>
+    </div>
+    <div class="sitrep-item">
+      <div class="sitrep-num" style="color:var(--green2);">{{ done_count }}</div>
+      <div class="sitrep-lbl">COMPLETE</div>
+    </div>
+    <div class="sitrep-item">
+      <div class="sitrep-num" style="color:var(--amber);">{{ total_count - done_count }}</div>
+      <div class="sitrep-lbl">PENDING</div>
+    </div>
+  </div>
+</div>
+
+<!-- DYNAMIC DAILY ALERT -->
+{% if total_count >= 0 %}
+<div class="comms" style="
+  {% if alert_type == 'green' %}background:var(--green3);border-color:rgba(74,124,63,0.4);border-left-color:var(--green2);
+  {% elif alert_type == 'red' %}background:var(--red3);border-color:rgba(139,32,32,0.4);border-left-color:var(--red2);
+  {% elif alert_type == 'warning' %}background:var(--amber3);border-color:rgba(212,135,10,0.4);border-left-color:var(--amber);
+  {% else %}background:var(--olive3);border-color:rgba(107,124,58,0.3);border-left-color:var(--olive2);
+  {% endif %}">
+  <span class="comms-icon">📡</span>
+  <span class="comms-text" style="
+    {% if alert_type == 'green' %}color:var(--green2);
+    {% elif alert_type == 'red' %}color:var(--red2);
+    {% elif alert_type == 'warning' %}color:var(--amber);
+    {% else %}color:var(--olive2);
+    {% endif %}">
+    [{{ now.strftime('%H:%M') }} HRS] {{ alert_msg }}
+  </span>
+</div>
+{% endif %}
+
+<!-- MISSIONS -->
+{% if habit_data %}
+  {% set pending = habit_data | rejectattr('done_today') | list %}
+  {% set done    = habit_data | selectattr('done_today')  | list %}
+
+  {% if pending %}
+    <div class="sec-hd">
+      <div class="sec-hd-label">ACTIVE MISSIONS</div>
+      <div class="sec-hd-line"></div>
+      <div class="sec-hd-count">{{ pending|length }}</div>
+    </div>
+    {% for hd in pending %}
+    <div class="mission-card color-{{ hd.habit.color }}" id="hcard-{{ hd.habit.id }}">
+      <div class="mc-inner">
+        <div class="mc-icon">{{ hd.habit.emoji }}</div>
+        <div class="mc-body">
+          <div class="mission-name">{{ hd.habit.name }}</div>
+          <div class="mc-meta">
+            <span class="mc-streak {% if hd.streak >= 3 %}hot{% endif %}">
+              {% if hd.streak > 0 %}🔥 {{ hd.streak }}D STREAK{% else %}// START STREAK{% endif %}
+            </span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);">· {{ hd.progress }}% TO GOAL</span>
+          </div>
+          <div class="mc-prog-bar"><div class="mc-prog-fill" style="width:{{ hd.progress }}%"></div></div>
+        </div>
+        <button class="confirm-btn" id="check-{{ hd.habit.id }}"
+                onclick="toggleHabit({{ hd.habit.id }}, this)"></button>
+      </div>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if done %}
+    <div class="sec-hd" style="margin-top:4px;">
+      <div class="sec-hd-label">COMPLETED</div>
+      <div class="sec-hd-line"></div>
+      <div class="sec-hd-count">{{ done|length }}</div>
+    </div>
+    {% for hd in done %}
+    <div class="mission-card done color-{{ hd.habit.color }}" id="hcard-{{ hd.habit.id }}">
+      <div class="mc-inner">
+        <div class="mc-icon">{{ hd.habit.emoji }}</div>
+        <div class="mc-body">
+          <div class="mission-name">{{ hd.habit.name }}</div>
+          <div class="mc-meta">
+            <span class="mc-streak hot">🔥 {{ hd.streak }}D STREAK</span>
+          </div>
+          <div class="mc-prog-bar"><div class="mc-prog-fill" style="width:{{ hd.progress }}%"></div></div>
+        </div>
+        <button class="confirm-btn done" id="check-{{ hd.habit.id }}"
+                onclick="toggleHabit({{ hd.habit.id }}, this)">✓</button>
+      </div>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+{% else %}
+  <div class="empty">
+    <div class="empty-icon">🎯</div>
+    <h3>NO MISSIONS ASSIGNED</h3>
+    <p>PRESS [+] TO ADD YOUR FIRST MISSION.<br>NO EXCUSES. NO RETREAT.</p>
+  </div>
+{% endif %}
+
+<!-- ADD MISSION MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeOnOverlay(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">NEW MISSION</div>
+    <div class="modal-sub">// ASSIGN OBJECTIVE //</div>
+    <form method="POST" action="/add_habit">
+      <div class="form-group">
+        <label class="form-label">// Mission Name</label>
+        <input type="text" name="name" class="form-control"
+               placeholder="E.G. BENCH PRESS 100KG" required
+               style="text-transform:uppercase;letter-spacing:1.5px;font-weight:700;font-size:15px;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">// Unit Icon</label>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;">
+          {% for e in ['🏋️','💪','🏃','🥊','⚡','🎯','🏆','🔥','🥗','💧','😴','🧘','🏊','🚴','🪖'] %}
+            <div class="ep-btn {% if loop.first %}ep-sel{% endif %}"
+                 onclick="selEmoji('{{ e }}', this)"
+                 style="width:40px;height:40px;border-radius:4px;background:var(--card2);
+                        border:2px solid transparent;display:flex;align-items:center;
+                        justify-content:center;font-size:20px;cursor:pointer;transition:all 0.15s;">{{ e }}</div>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="emoji" id="emojiVal" value="🏋️">
+      </div>
+      <div class="form-group">
+        <label class="form-label">// Unit Color</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          {% for cname, chex in [('olive','#8a9e4a'),('amber','#d4870a'),('green','#5a9e50'),('red','#b03030'),('khaki','#8b7355'),('tan','#a89862'),('orange','#c8681a')] %}
+            <div class="cd-btn {% if loop.first %}cd-sel{% endif %}"
+                 onclick="selColor('{{ cname }}', this)"
+                 style="width:30px;height:30px;border-radius:3px;background:{{ chex }};
+                        cursor:pointer;border:3px solid transparent;transition:all 0.15s;"></div>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="color" id="colorVal" value="olive">
+      </div>
+      <div class="form-group">
+        <label class="form-label">// Mission Length</label>
+        <select name="goal" class="form-control">
+          <option value="7">7 DAYS — RECON</option>
+          <option value="21">21 DAYS — BASIC TRAINING</option>
+          <option value="30" selected>30 DAYS — FULL DEPLOYMENT</option>
+          <option value="66">66 DAYS — SPECIAL OPS</option>
+          <option value="100">100 DAYS — ELITE COMMAND</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">⚡ DEPLOY MISSION</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+function openModal() {
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => document.querySelector('#modal input[name=name]').focus(), 300);
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function closeOnOverlay(e) { if (e.target.id === 'modal') closeModal(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function selEmoji(val, el) {
+  document.querySelectorAll('.ep-btn').forEach(b => { b.style.borderColor='transparent'; b.style.background='var(--card2)'; });
+  el.style.borderColor = 'var(--olive2)'; el.style.background = 'var(--olive3)';
+  document.getElementById('emojiVal').value = val;
+}
+function selColor(val, el) {
+  document.querySelectorAll('.cd-btn').forEach(b => b.style.borderColor = 'transparent');
+  el.style.borderColor = '#fff';
+  document.getElementById('colorVal').value = val;
+}
+document.querySelector('.ep-btn').style.borderColor = 'var(--olive2)';
+document.querySelector('.ep-btn').style.background  = 'var(--olive3)';
+document.querySelector('.cd-btn').style.borderColor = '#fff';
+
+async function toggleHabit(id, btn) {
+  const res  = await fetch(`/toggle/${id}`, { method: 'POST' });
+  const data = await res.json();
+  const card = document.getElementById(`hcard-${id}`);
+  const chk  = document.getElementById(`check-${id}`);
+  if (data.done) {
+    chk.classList.add('done'); chk.textContent = '✓';
+    card.classList.add('done');
+  } else {
+    chk.classList.remove('done'); chk.textContent = '';
+    card.classList.remove('done');
+  }
+  const sEl = card.querySelector('.mc-streak');
+  if (sEl) {
+    sEl.textContent = data.streak > 0 ? `🔥 ${data.streak}D STREAK` : '// START STREAK';
+    data.streak >= 3 ? sEl.classList.add('hot') : sEl.classList.remove('hot');
+  }
+}
+</script>
+{% endblock %}

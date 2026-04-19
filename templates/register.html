@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}STONERS — ENLIST{% endblock %}
+{% block content %}
+<div style="min-height:100vh;padding:56px 24px 40px;
+            background:linear-gradient(160deg,#0d1008 0%,#0d0f0a 100%);">
+
+  <div style="margin-bottom:22px;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--olive2);
+                letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">// ENLISTMENT FORM //</div>
+    <div style="font-family:'Russo One',sans-serif;font-size:28px;color:var(--tan);
+                text-transform:uppercase;letter-spacing:2px;">JOIN THE UNIT</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);
+                letter-spacing:1px;margin-top:4px;">FORGE YOUR DISCIPLINE. EARN YOUR RANK.</div>
+  </div>
+
+  <div style="background:var(--card);border-radius:4px;padding:20px;
+              border:1px solid var(--border);border-top:2px solid var(--olive);">
+    <form method="POST">
+
+      <!-- AVATAR -->
+      <div class="form-group">
+        <label class="form-label">// Choose Your Insignia</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          {% for emoji in ['💪','🦁','🐯','🦅','⚡','🔥','🏆','💀','🦾','🐺','🥊','🎯'] %}
+            <div onclick="selAv('{{ emoji }}', this)"
+                 style="width:44px;height:44px;border-radius:4px;background:var(--card2);
+                        display:flex;align-items:center;justify-content:center;font-size:24px;
+                        cursor:pointer;border:2px solid transparent;transition:all 0.15s;"
+                 class="av-opt {% if loop.first %}av-sel{% endif %}">{{ emoji }}</div>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="avatar" id="avVal" value="💪">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">// Operative Name</label>
+        <input type="text" name="username" class="form-control"
+               placeholder="WARRIOR_NAME" required
+               style="text-transform:uppercase;letter-spacing:2px;font-weight:700;font-size:16px;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">// Email</label>
+        <input type="email" name="email" class="form-control" placeholder="operative@unit.mil" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">// Access Code</label>
+        <input type="password" name="password" class="form-control"
+               placeholder="MIN 6 CHARACTERS" required minlength="6">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top:4px;">
+        🪖 ENLIST NOW
+      </button>
+    </form>
+    <div style="text-align:center;margin-top:14px;font-family:'Share Tech Mono',monospace;
+                font-size:11px;color:var(--text3);letter-spacing:1px;">
+      ALREADY ENLISTED? <a href="/login" style="color:var(--olive2);text-decoration:none;font-weight:700;">AUTHENTICATE</a>
+    </div>
+  </div>
+</div>
+<script>
+function selAv(val, el) {
+  document.querySelectorAll('.av-opt').forEach(a => { a.style.borderColor='transparent'; a.style.background='var(--card2)'; });
+  el.style.borderColor = 'var(--olive2)'; el.style.background = 'var(--olive3)';
+  document.getElementById('avVal').value = val;
+}
+document.querySelector('.av-opt').style.borderColor = 'var(--olive2)';
+document.querySelector('.av-opt').style.background  = 'var(--olive3)';
+</script>
+{% endblock %}

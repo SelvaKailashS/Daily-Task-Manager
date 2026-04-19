@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0d0f0a">
+<title>{% block title %}STONERS OPS{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Share+Tech+Mono&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:      #0d0f0a;
+  --bg2:     #131510;
+  --card:    #181b14;
+  --card2:   #1e2219;
+  --olive:   #6b7c3a;
+  --olive2:  #8a9e4a;
+  --olive3:  rgba(107,124,58,0.15);
+  --tan:     #c8b882;
+  --tan2:    #a89862;
+  --khaki:   #8b7355;
+  --khaki3:  rgba(139,115,85,0.15);
+  --amber:   #d4870a;
+  --amber3:  rgba(212,135,10,0.15);
+  --green:   #4a7c3f;
+  --green2:  #5a9e50;
+  --green3:  rgba(74,124,63,0.2);
+  --red:     #8b2020;
+  --red2:    #b03030;
+  --red3:    rgba(139,32,32,0.2);
+  --text:    #d4cdb8;
+  --text2:   #8a8570;
+  --text3:   #4a4840;
+  --border:  #2a2e22;
+  --border2: #363b2c;
+  --nav-h:   68px;
+}
+html { height: 100%; }
+body {
+  font-family: 'Barlow', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100%; max-width: 430px;
+  margin: 0 auto; padding-bottom: var(--nav-h);
+  -webkit-font-smoothing: antialiased;
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(107,124,58,0.018) 3px, rgba(107,124,58,0.018) 4px);
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px;
+  background: rgba(13,15,10,0.98); border-top: 2px solid var(--olive);
+  height: var(--nav-h); display: flex; align-items: center;
+  justify-content: space-around; padding: 0 8px; z-index: 100;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 3px; text-decoration: none; flex: 1; padding: 8px 4px; transition: all 0.2s;
+}
+.nav-item .ni { font-size: 20px; line-height: 1; }
+.nav-item .nl {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px;
+}
+.nav-item.active .nl { color: var(--olive2); }
+.fab {
+  width: 52px; height: 52px; background: var(--olive);
+  border: 2px solid var(--olive2); color: var(--bg);
+  font-size: 24px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 20px rgba(107,124,58,0.4);
+  cursor: pointer; border-radius: 4px; transition: all 0.15s; flex-shrink: 0;
+}
+.fab:active { transform: scale(0.93); }
+
+/* ── HEADER ── */
+.page-header {
+  padding: 54px 20px 14px; background: var(--bg2);
+  border-bottom: 2px solid var(--olive); position: relative; overflow: hidden;
+}
+.page-header::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--olive2), transparent);
+}
+.page-header h1 {
+  font-family: 'Russo One', sans-serif; font-size: 26px;
+  color: var(--tan); text-transform: uppercase; letter-spacing: 2px;
+}
+.page-header p {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; color: var(--text2); margin-top: 3px; letter-spacing: 1px;
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--card); border-radius: 4px;
+  border: 1px solid var(--border); border-left: 3px solid var(--olive); padding: 14px;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 22px; border-radius: 3px; font-size: 13px;
+  font-weight: 700; text-decoration: none; cursor: pointer;
+  border: none; transition: all 0.15s;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
+.btn-primary { background: var(--olive); color: var(--bg); border: 1px solid var(--olive2); box-shadow: 0 0 14px rgba(107,124,58,0.3); }
+.btn-primary:hover  { background: var(--olive2); }
+.btn-primary:active { transform: scale(0.97); }
+.btn-outline { background: transparent; color: var(--tan); border: 1px solid var(--border2); }
+.btn-outline:hover { border-color: var(--olive); color: var(--olive2); }
+.btn-full { width: 100%; justify-content: center; padding: 14px; font-size: 14px; border-radius: 3px; }
+.btn-sm   { padding: 6px 14px; font-size: 11px; }
+
+/* ── FORM ── */
+.form-group { margin-bottom: 14px; }
+.form-label {
+  display: block; font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; color: var(--text2); margin-bottom: 6px;
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
+.form-control {
+  width: 100%; padding: 11px 14px; border-radius: 3px;
+  background: var(--card2); border: 1px solid var(--border2);
+  color: var(--text); font-size: 14px; outline: none;
+  font-family: 'Share Tech Mono', monospace; transition: border-color 0.2s; letter-spacing: 0.5px;
+}
+.form-control:focus { border-color: var(--olive2); }
+select.form-control { cursor: pointer; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.88); align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2); border-top: 2px solid var(--olive);
+  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  padding: 0 20px 48px; width: 100%; max-width: 430px;
+  max-height: 92vh; overflow-y: auto;
+  animation: slideUp 0.28s ease;
+}
+@keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal-handle { width: 40px; height: 3px; background: var(--border2); margin: 14px auto 22px; }
+.modal-title {
+  font-family: 'Russo One', sans-serif; font-size: 22px; color: var(--tan);
+  text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;
+}
+.modal-sub {
+  font-family: 'Share Tech Mono', monospace; font-size: 10px;
+  color: var(--text2); letter-spacing: 1.5px; margin-bottom: 20px;
+}
+
+/* ── FLASH ── */
+.flashes { padding: 10px 14px 0; }
+.flash {
+  padding: 10px 14px; border-radius: 3px; margin-bottom: 6px;
+  font-family: 'Share Tech Mono', monospace; font-size: 12px;
+  letter-spacing: 0.5px; border-left: 3px solid;
+}
+.flash.error   { background: var(--red3);   border-color: var(--red2);   color: #e08080; }
+.flash.success { background: var(--green3); border-color: var(--green2); color: #80c880; }
+
+/* ── EMPTY ── */
+.empty { text-align: center; padding: 3rem 2rem; }
+.empty-icon { font-size: 48px; margin-bottom: 1rem; }
+.empty h3 {
+  font-family: 'Russo One', sans-serif; font-size: 20px; color: var(--tan);
+  text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;
+}
+.empty p {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px; color: var(--text2); line-height: 1.7; letter-spacing: 0.5px;
+}
+
+/* COLOR MAP */
+.color-olive  { --hc: var(--olive2); --hcl: var(--olive3); }
+.color-amber  { --hc: var(--amber);  --hcl: var(--amber3); }
+.color-green  { --hc: var(--green2); --hcl: var(--green3); }
+.color-red    { --hc: var(--red2);   --hcl: var(--red3); }
+.color-khaki  { --hc: var(--khaki);  --hcl: var(--khaki3); }
+.color-tan    { --hc: var(--tan2);   --hcl: rgba(200,184,130,0.12); }
+.color-orange { --hc: #c8681a;       --hcl: rgba(200,104,26,0.12); }
+</style>
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flashes">
+      {% for cat, msg in messages %}
+        <div class="flash {{ cat }}">[{{ cat.upper() }}] {{ msg }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+{% block content %}{% endblock %}
+{% if get_user() %}
+<nav class="bottom-nav">
+  <a href="/" class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">
+    <span class="ni">🎯</span><span class="nl">OPS</span>
+  </a>
+  <a href="/stats" class="nav-item {% if request.endpoint == 'stats' %}active{% endif %}">
+    <span class="ni">📋</span><span class="nl">INTEL</span>
+  </a>
+  <button class="fab" onclick="openModal()">+</button>
+  <a href="/profile" class="nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+    <span class="ni">🪖</span><span class="nl">SOLDIER</span>
+  </a>
+  <a href="/logout" class="nav-item">
+    <span class="ni">🚪</span><span class="nl">EVAC</span>
+  </a>
+</nav>
+{% endif %}
+{% block extra_js %}{% endblock %}
+</body>
+</html>

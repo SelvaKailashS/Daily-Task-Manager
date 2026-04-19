@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}STONERS — AUTHENTICATE{% endblock %}
+{% block content %}
+<div style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+            padding:2rem 24px;background:linear-gradient(160deg,#0d1008 0%,#0d0f0a 100%);">
+
+  <div style="text-align:center;margin-bottom:2.5rem;">
+    <div style="font-size:52px;margin-bottom:16px;">🪖</div>
+    <div style="font-family:'Russo One',sans-serif;font-size:38px;color:var(--tan);
+                text-transform:uppercase;letter-spacing:4px;line-height:1;">
+      STON<span style="color:var(--olive2);">ERS</span>
+    </div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--olive2);
+                letter-spacing:3px;text-transform:uppercase;margin-top:8px;border:1px solid var(--olive3);
+                display:inline-block;padding:4px 14px;border-radius:2px;">
+      TACTICAL TRAINING SYSTEM
+    </div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);
+                letter-spacing:2px;margin-top:12px;">// AUTHENTICATE TO PROCEED //</div>
+  </div>
+
+  <div style="background:var(--card);border-radius:4px;padding:22px;
+              border:1px solid var(--border);border-top:2px solid var(--olive);">
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">// Operative Email</label>
+        <input type="email" name="email" class="form-control" placeholder="operative@unit.mil" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">// Access Code</label>
+        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">
+        ⚡ AUTHENTICATE
+      </button>
+    </form>
+    <div style="text-align:center;margin-top:16px;font-family:'Share Tech Mono',monospace;
+                font-size:11px;color:var(--text3);letter-spacing:1px;">
+      NOT ENLISTED? <a href="/register" style="color:var(--olive2);font-weight:700;text-decoration:none;">ENLIST NOW</a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
