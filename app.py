@@ -320,9 +320,8 @@ def profile():
     return render_template('profile.html', user=user,
                            total=total, done=total, rate=rate,
                            habits=habits, cats=cats)
-
     with app.app_context():
-    db.create_all()
+        db.create_all()
 
 if __name__ == '__main__':
     with app.app_context():
