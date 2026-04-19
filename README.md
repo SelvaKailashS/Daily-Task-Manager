@@ -8,7 +8,7 @@ A military-tactical themed habit tracker built with Python Flask. Track your dai
 
 ## 🖥️ Live Demo
 
-> Deploy on Render and paste your URL here.
+> https://stoners.onrender.com
 
 ---
 
@@ -41,7 +41,7 @@ A military-tactical themed habit tracker built with Python Flask. Track your dai
 
 **1. Clone the repo**
 ```bash
-git clone https://github.com/YOUR_USERNAME/Stoners.git
+git clone https://github.com/SelvaKailashS/Stoners.git
 cd Stoners
 ```
 
@@ -126,10 +126,7 @@ Stoners/
 
 ## 👤 Author
 
-**Selva Kailash S** — [@kailash1234-visual](https://github.com/kailash1234-visual)
+**Selva Kailash S** — [@SelvaKailashS](https://github.com/SelvaKailashS)
 
 ---
 
-## 📄 License
-
-MIT License — free to use, modify and share.
