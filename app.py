@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date, timedelta
+import pytz
 from functools import wraps
 import json
 import os
@@ -133,7 +134,8 @@ def index():
     user  = get_user()
     if not user: return redirect(url_for('login'))
     today = date.today()
-    now   = datetime.now()
+    IST = pytz.timezone('Asia/Kolkata')
+    now = datetime.now(IST)
     habits = Habit.query.filter_by(user_id=user.id).order_by(Habit.created_at).all()
 
     habit_data = []
