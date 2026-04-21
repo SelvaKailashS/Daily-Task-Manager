@@ -30,7 +30,6 @@ class Habit(db.Model):
     name       = db.Column(db.String(120), nullable=False)
     emoji      = db.Column(db.String(4),   default='🏋️')
     color      = db.Column(db.String(20),  default='olive')
-    category   = db.Column(db.String(30),  default='FITNESS')
     goal       = db.Column(db.Integer,     default=30)
     created_at = db.Column(db.DateTime,    default=datetime.now)
     user_id    = db.Column(db.Integer,     db.ForeignKey('user.id'), nullable=False)
@@ -185,13 +184,12 @@ def index():
 @app.route('/add_habit', methods=['POST'])
 @login_required
 def add_habit():
-    name     = request.form['name'].strip()
-    emoji    = request.form.get('emoji', '🏋️')
-    color    = request.form.get('color', 'olive')
-    category = request.form.get('category', 'FITNESS')
-    goal     = int(request.form.get('goal', 30))
+    name  = request.form['name'].strip()
+    emoji = request.form.get('emoji', '🏋️')
+    color = request.form.get('color', 'olive')
+    goal  = int(request.form.get('goal', 30))
     if name:
-        habit = Habit(name=name, emoji=emoji, color=color, category=category, goal=goal,
+        habit = Habit(name=name, emoji=emoji, color=color, goal=goal,
                       user_id=session['user_id'])
         db.session.add(habit)
         db.session.commit()
