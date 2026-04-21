@@ -2,17 +2,15 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date, timedelta
-import pytz
 from functools import wraps
 import json
 import os
 
 app = Flask(__name__)
-app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'stoners-secret-2025')
 DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///stoners.db')
 if DATABASE_URL.startswith('postgres://'):
-    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql+psycopg://', 1)
+    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -32,6 +30,7 @@ class Habit(db.Model):
     name       = db.Column(db.String(120), nullable=False)
     emoji      = db.Column(db.String(4),   default='🏋️')
     color      = db.Column(db.String(20),  default='olive')
+    category   = db.Column(db.String(30),  default='FITNESS')
     goal       = db.Column(db.Integer,     default=30)
     created_at = db.Column(db.DateTime,    default=datetime.now)
     user_id    = db.Column(db.Integer,     db.ForeignKey('user.id'), nullable=False)
@@ -134,8 +133,7 @@ def index():
     user  = get_user()
     if not user: return redirect(url_for('login'))
     today = date.today()
-    IST = pytz.timezone('Asia/Kolkata')
-    now = datetime.now(IST)
+    now   = datetime.now()
     habits = Habit.query.filter_by(user_id=user.id).order_by(Habit.created_at).all()
 
     habit_data = []
@@ -187,12 +185,13 @@ def index():
 @app.route('/add_habit', methods=['POST'])
 @login_required
 def add_habit():
-    name  = request.form['name'].strip()
-    emoji = request.form.get('emoji', '🏋️')
-    color = request.form.get('color', 'olive')
-    goal  = int(request.form.get('goal', 30))
+    name     = request.form['name'].strip()
+    emoji    = request.form.get('emoji', '🏋️')
+    color    = request.form.get('color', 'olive')
+    category = request.form.get('category', 'FITNESS')
+    goal     = int(request.form.get('goal', 30))
     if name:
-        habit = Habit(name=name, emoji=emoji, color=color, goal=goal,
+        habit = Habit(name=name, emoji=emoji, color=color, category=category, goal=goal,
                       user_id=session['user_id'])
         db.session.add(habit)
         db.session.commit()
@@ -321,10 +320,7 @@ def profile():
     return render_template('profile.html', user=user,
                            total=total, done=total, rate=rate,
                            habits=habits, cats=cats)
-    with app.app_context():
-        db.create_all()
-import logging
-logging.basicConfig(level=logging.DEBUG)
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
