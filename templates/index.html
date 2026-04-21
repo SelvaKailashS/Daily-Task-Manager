@@ -231,13 +231,7 @@
       <div class="mc-inner">
         <div class="mc-icon">{{ hd.habit.emoji }}</div>
         <div class="mc-body">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-            <div class="mission-name" style="flex:1;">{{ hd.habit.name }}</div>
-            <span style="font-family:'Share Tech Mono',monospace;font-size:8px;font-weight:700;
-                         color:var(--olive2);background:var(--olive3);border:1px solid rgba(107,124,58,0.3);
-                         border-radius:3px;padding:2px 6px;text-transform:uppercase;letter-spacing:0.5px;
-                         white-space:nowrap;">{{ hd.habit.category }}</span>
-          </div>
+          <div class="mission-name">{{ hd.habit.name }}</div>
           <div class="mc-meta">
             <span class="mc-streak {% if hd.streak >= 3 %}hot{% endif %}">
               {% if hd.streak > 0 %}🔥 {{ hd.streak }}D STREAK{% else %}// START STREAK{% endif %}
@@ -264,13 +258,7 @@
       <div class="mc-inner">
         <div class="mc-icon">{{ hd.habit.emoji }}</div>
         <div class="mc-body">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-            <div class="mission-name" style="flex:1;">{{ hd.habit.name }}</div>
-            <span style="font-family:'Share Tech Mono',monospace;font-size:8px;font-weight:700;
-                         color:var(--olive2);background:var(--olive3);border:1px solid rgba(107,124,58,0.3);
-                         border-radius:3px;padding:2px 6px;text-transform:uppercase;letter-spacing:0.5px;
-                         white-space:nowrap;">{{ hd.habit.category }}</span>
-          </div>
+          <div class="mission-name">{{ hd.habit.name }}</div>
           <div class="mc-meta">
             <span class="mc-streak hot">🔥 {{ hd.streak }}D STREAK</span>
           </div>
@@ -328,18 +316,6 @@
           {% endfor %}
         </div>
         <input type="hidden" name="color" id="colorVal" value="olive">
-      </div>
-      <div class="form-group">
-        <label class="form-label">// Mission Category</label>
-        <select name="category" class="form-control">
-          <option value="FITNESS" selected>🏋️ FITNESS</option>
-          <option value="HEALTH">❤️ HEALTH</option>
-          <option value="PRODUCTIVITY">⚡ PRODUCTIVITY</option>
-          <option value="LEARNING">📚 LEARNING</option>
-          <option value="MINDFULNESS">🧘 MINDFULNESS</option>
-          <option value="LIFESTYLE">🌟 LIFESTYLE</option>
-          <option value="OTHER">📌 OTHER</option>
-        </select>
       </div>
       <div class="form-group">
         <label class="form-label">// Mission Length</label>
