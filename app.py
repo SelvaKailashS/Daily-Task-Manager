@@ -8,9 +8,11 @@ import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'stoners-secret-2025')
+
 DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///stoners.db')
 if DATABASE_URL.startswith('postgres://'):
     DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -24,6 +26,7 @@ class User(db.Model):
     avatar     = db.Column(db.String(4),   default='💪')
     created_at = db.Column(db.DateTime,    default=datetime.now)
     habits     = db.relationship('Habit', backref='owner', lazy=True)
+    badges     = db.relationship('Badge', backref='user', lazy=True)
 
 class Habit(db.Model):
     id         = db.Column(db.Integer, primary_key=True)
@@ -41,6 +44,16 @@ class HabitLog(db.Model):
     date     = db.Column(db.Date,    nullable=False, default=date.today)
     done     = db.Column(db.Boolean, default=True)
     __table_args__ = (db.UniqueConstraint('habit_id', 'date'),)
+
+class Badge(db.Model):
+    id          = db.Column(db.Integer, primary_key=True)
+    name        = db.Column(db.String(50),  nullable=False)
+    description = db.Column(db.String(200), nullable=False)
+    icon        = db.Column(db.String(4),   nullable=False)
+    milestone   = db.Column(db.Integer,     nullable=False)  # streak days or total reps
+    badge_type  = db.Column(db.String(20),  nullable=False)  # 'streak' or 'total'
+    earned_at   = db.Column(db.DateTime,    default=datetime.now)
+    user_id     = db.Column(db.Integer,     db.ForeignKey('user.id'), nullable=False)
 
 # ── HELPERS ─────────────────────────────────────────────────────
 
@@ -78,11 +91,70 @@ def get_month_logs(habit, year, month):
             logs[log.date.day] = log.done
     return logs, days
 
+def check_and_award_badges(user):
+    """Check if user deserves any new badges"""
+    habits = Habit.query.filter_by(user_id=user.id).all()
+    
+    new_badges = []
+    
+    # Define all possible badges
+    badge_configs = [
+        {'name': '7 DAY WARRIOR', 'icon': '🔥', 'milestone': 7, 'type': 'streak', 'desc': 'Achieve a 7-day streak'},
+        {'name': '21 DAY SOLDIER', 'icon': '⚡', 'milestone': 21, 'type': 'streak', 'desc': 'Achieve a 21-day streak'},
+        {'name': '100 DAY LEGEND', 'icon': '👑', 'milestone': 100, 'type': 'streak', 'desc': 'Achieve a 100-day streak'},
+        {'name': '10 HABITS', 'icon': '🎯', 'milestone': 10, 'type': 'count', 'desc': 'Create 10 habits'},
+        {'name': '50 REPS', 'icon': '💯', 'milestone': 50, 'type': 'total', 'desc': 'Complete 50 habit logs'},
+        {'name': '365 DAYS', 'icon': '🏆', 'milestone': 365, 'type': 'streak', 'desc': 'Achieve a 365-day streak'},
+    ]
+    
+    for config in badge_configs:
+        # Check if badge already earned
+        existing = Badge.query.filter_by(user_id=user.id, name=config['name']).first()
+        if existing:
+            continue
+        
+        earned = False
+        
+        if config['type'] == 'streak':
+            # Check max streak across all habits
+            max_streak = max([calc_streak(h) for h in habits], default=0)
+            if max_streak >= config['milestone']:
+                earned = True
+                
+        elif config['type'] == 'total':
+            # Check total completions
+            total = HabitLog.query.join(Habit).filter(
+                Habit.user_id == user.id, HabitLog.done == True).count()
+            if total >= config['milestone']:
+                earned = True
+                
+        elif config['type'] == 'count':
+            # Check habit count
+            if len(habits) >= config['milestone']:
+                earned = True
+        
+        if earned:
+            badge = Badge(
+                name=config['name'],
+                icon=config['icon'],
+                description=config['desc'],
+                milestone=config['milestone'],
+                badge_type=config['type'],
+                user_id=user.id
+            )
+            db.session.add(badge)
+            new_badges.append(config['name'])
+    
+    if new_badges:
+        db.session.commit()
+    
+    return new_badges
+
 app.jinja_env.globals['get_user'] = get_user
 
 @app.context_processor
 def inject_globals():
-    return {'today': date.today(), 'now': datetime.now()}  # LOCAL time
+    return {'today': date.today(), 'now': datetime.now()}
 
 # ── AUTH ────────────────────────────────────────────────────────
 
@@ -152,7 +224,6 @@ def index():
     total_count = len(habit_data)
     hour        = now.hour
 
-    # Daily alert based on local time
     if total_count == 0:
         alert_msg  = "NO MISSIONS ASSIGNED YET. PRESS [+] TO BEGIN."
         alert_type = "olive"
@@ -221,7 +292,12 @@ def toggle(habit_id):
         done = True
     db.session.commit()
     streak = calc_streak(habit)
-    return jsonify({'done': done, 'streak': streak})
+    
+    # Check for new badges
+    user = get_user()
+    new_badges = check_and_award_badges(user)
+    
+    return jsonify({'done': done, 'streak': streak, 'new_badges': new_badges})
 
 @app.route('/habit/<int:habit_id>')
 @login_required
@@ -270,12 +346,10 @@ def stats():
     longest_streak    = max((d['streak'] for d in data), default=0)
     avg_rate          = round(sum(d['progress'] for d in data) / len(data)) if data else 0
 
-    # Chart 1: completions per habit
     chart_labels  = json.dumps([d['habit'].name for d in data])
     chart_totals  = json.dumps([d['total']      for d in data])
     chart_streaks = json.dumps([d['streak']     for d in data])
 
-    # Chart 2: weekly trend — last 7 days
     week_labels = []
     week_counts = []
     for i in range(6, -1, -1):
@@ -315,9 +389,12 @@ def profile():
                        .join(HabitLog, HabitLog.habit_id == Habit.id)\
                        .filter(Habit.user_id == user.id, HabitLog.done == True)\
                        .group_by(Habit.name).all()
+    
+    badges = Badge.query.filter_by(user_id=user.id).order_by(Badge.earned_at.desc()).all()
+    
     return render_template('profile.html', user=user,
                            total=total, done=total, rate=rate,
-                           habits=habits, cats=cats)
+                           habits=habits, cats=cats, badges=badges)
 
 if __name__ == '__main__':
     with app.app_context():
