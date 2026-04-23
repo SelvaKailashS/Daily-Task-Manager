@@ -143,10 +143,21 @@
   border: 2px solid var(--border2);
   background: transparent; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px; cursor: pointer; transition: all 0.2s; color: transparent;
+  font-size: 14px; cursor: pointer; transition: all 0.2s; 
+  color: transparent;
+  padding: 0;
 }
-.confirm-btn.done { background: var(--green); border-color: var(--green2); color: #fff; font-size: 16px; }
-.confirm-btn:hover:not(.done) { border-color: var(--olive2); }
+.confirm-btn:hover:not(.done) { 
+  border-color: var(--olive2); 
+  background: var(--olive3);
+}
+.confirm-btn.done { 
+  background: var(--green); 
+  border-color: var(--green2); 
+  color: #fff; 
+  font-size: 16px;
+  font-weight: 700;
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -387,21 +398,57 @@ document.querySelector('.ep-btn').style.background  = 'var(--olive3)';
 document.querySelector('.cd-btn').style.borderColor = '#fff';
 
 async function toggleHabit(id, btn) {
-  const res  = await fetch(`/toggle/${id}`, { method: 'POST' });
-  const data = await res.json();
-  const card = document.getElementById(`hcard-${id}`);
-  const chk  = document.getElementById(`check-${id}`);
-  if (data.done) {
-    chk.classList.add('done'); chk.textContent = '✓';
-    card.classList.add('done');
-  } else {
-    chk.classList.remove('done'); chk.textContent = '';
-    card.classList.remove('done');
-  }
-  const sEl = card.querySelector('.mc-streak');
-  if (sEl) {
-    sEl.textContent = data.streak > 0 ? `🔥 ${data.streak}D STREAK` : '// START STREAK';
-    data.streak >= 3 ? sEl.classList.add('hot') : sEl.classList.remove('hot');
+  try {
+    btn.style.opacity = '0.5';
+    btn.style.cursor = 'wait';
+    
+    const res = await fetch(`/toggle/${id}`, { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    if (!res.ok) {
+      console.error('Error:', res.status);
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      return;
+    }
+    
+    const data = await res.json();
+    const card = document.getElementById(`hcard-${id}`);
+    const chk = document.getElementById(`check-${id}`);
+    
+    if (!card || !chk) {
+      console.error('Card or button not found');
+      return;
+    }
+    
+    if (data.done) {
+      chk.classList.add('done');
+      chk.textContent = '✓';
+      card.classList.add('done');
+    } else {
+      chk.classList.remove('done');
+      chk.textContent = '';
+      card.classList.remove('done');
+    }
+    
+    const sEl = card.querySelector('.mc-streak');
+    if (sEl) {
+      sEl.textContent = data.streak > 0 ? `🔥 ${data.streak}D STREAK` : '// START STREAK';
+      if (data.streak >= 3) {
+        sEl.classList.add('hot');
+      } else {
+        sEl.classList.remove('hot');
+      }
+    }
+    
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+  } catch (error) {
+    console.error('Toggle error:', error);
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
   }
 }
 </script>
