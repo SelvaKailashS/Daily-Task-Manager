@@ -28,8 +28,6 @@
   font-family: 'Share Tech Mono', monospace;
   font-size: 10px; color: var(--text2); letter-spacing: 1px; margin-top: 4px;
 }
-
-/* Tactical ring */
 .tac-ring { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
 .tac-ring svg { transform: rotate(-90deg); }
 .tac-ring-inner {
@@ -38,8 +36,6 @@
 }
 .tac-pct { font-family: 'Russo One', sans-serif; font-size: 18px; color: var(--olive2); line-height: 1; }
 .tac-lbl { font-family: 'Share Tech Mono', monospace; font-size: 8px; color: var(--text3); letter-spacing: 1px; }
-
-/* SITREP (stat strip) */
 .sitrep {
   display: grid; grid-template-columns: repeat(3, 1fr);
   border-top: 1px solid var(--border);
@@ -56,8 +52,6 @@
   font-family: 'Share Tech Mono', monospace; font-size: 9px;
   color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px;
 }
-
-/* COMMS BANNER */
 .comms {
   margin: 10px 14px;
   padding: 10px 14px;
@@ -72,8 +66,6 @@
   font-family: 'Share Tech Mono', monospace;
   font-size: 12px; color: var(--olive2); letter-spacing: 0.5px;
 }
-
-/* SECTION HEADER */
 .sec-hd {
   display: flex; align-items: center; gap: 10px; padding: 12px 16px 8px;
 }
@@ -89,8 +81,6 @@
   border: 1px solid rgba(107,124,58,0.3);
   border-radius: 2px; padding: 2px 8px;
 }
-
-/* MISSION CARD */
 .mission-card {
   margin: 0 12px 8px;
   background: var(--card);
@@ -107,25 +97,35 @@
 }
 .mission-card.done { opacity: 0.5; }
 .mission-card.done .mission-name { text-decoration: line-through; color: var(--text3); }
-
 .mc-inner {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 12px 12px 18px;
 }
-
 .mc-icon {
   width: 44px; height: 44px; border-radius: 4px;
   background: var(--hcl); border: 1px solid rgba(255,255,255,0.06);
   display: flex; align-items: center; justify-content: center;
   font-size: 22px; flex-shrink: 0;
 }
-
 .mc-body { flex: 1; min-width: 0; }
 .mission-name {
   font-family: 'Russo One', sans-serif;
   font-size: 16px; color: var(--tan); text-transform: uppercase;
   letter-spacing: 0.5px; line-height: 1.2;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.category-badge {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;
+  font-weight:700;
+  color:var(--olive2);
+  background:var(--olive3);
+  border:1px solid rgba(107,124,58,0.3);
+  border-radius:3px;
+  padding:2px 6px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  white-space:nowrap;
 }
 .mc-meta {
   display: flex; align-items: center; gap: 8px; margin-top: 5px; flex-wrap: wrap;
@@ -138,8 +138,6 @@
 .mc-prog-bar { height: 3px; background: var(--border); border-radius: 0; margin-top: 7px; overflow: hidden; }
 .mc-prog-fill { height: 100%; background: var(--hc); transition: width 0.4s; }
 .mission-card.done .mc-prog-fill { background: var(--green2); }
-
-/* CONFIRM BUTTON */
 .confirm-btn {
   width: 36px; height: 36px; border-radius: 3px;
   border: 2px solid var(--border2);
@@ -161,7 +159,6 @@
       <div class="mh-name">SOLDIER {{ user.username }}</div>
       <div class="mh-date">{{ today.strftime('%d %b %Y').upper() }} · {{ now.strftime('%H:%M') }} HRS</div>
     </div>
-    <!-- RING -->
     {% set pct  = (done_count / total_count * 100)|int if total_count else 0 %}
     {% set circ = 188 %}
     {% set off  = circ - (circ * pct / 100) %}
@@ -178,7 +175,6 @@
       </div>
     </div>
   </div>
-  <!-- SITREP -->
   <div class="sitrep">
     <div class="sitrep-item">
       <div class="sitrep-num" style="color:var(--olive2);">{{ total_count }}</div>
@@ -231,7 +227,12 @@
       <div class="mc-inner">
         <div class="mc-icon">{{ hd.habit.emoji }}</div>
         <div class="mc-body">
-          <div class="mission-name">{{ hd.habit.name }}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <div class="mission-name" style="flex:1;">{{ hd.habit.name }}</div>
+            {% if hd.habit.category %}
+            <span class="category-badge">{{ hd.habit.category }}</span>
+            {% endif %}
+          </div>
           <div class="mc-meta">
             <span class="mc-streak {% if hd.streak >= 3 %}hot{% endif %}">
               {% if hd.streak > 0 %}🔥 {{ hd.streak }}D STREAK{% else %}// START STREAK{% endif %}
@@ -258,7 +259,12 @@
       <div class="mc-inner">
         <div class="mc-icon">{{ hd.habit.emoji }}</div>
         <div class="mc-body">
-          <div class="mission-name">{{ hd.habit.name }}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <div class="mission-name" style="flex:1;">{{ hd.habit.name }}</div>
+            {% if hd.habit.category %}
+            <span class="category-badge">{{ hd.habit.category }}</span>
+            {% endif %}
+          </div>
           <div class="mc-meta">
             <span class="mc-streak hot">🔥 {{ hd.streak }}D STREAK</span>
           </div>
@@ -316,6 +322,18 @@
           {% endfor %}
         </div>
         <input type="hidden" name="color" id="colorVal" value="olive">
+      </div>
+      <div class="form-group">
+        <label class="form-label">// Mission Category</label>
+        <select name="category" class="form-control">
+          <option value="FITNESS" selected>🏋️ FITNESS</option>
+          <option value="HEALTH">❤️ HEALTH</option>
+          <option value="PRODUCTIVITY">⚡ PRODUCTIVITY</option>
+          <option value="LEARNING">📚 LEARNING</option>
+          <option value="MINDFULNESS">🧘 MINDFULNESS</option>
+          <option value="LIFESTYLE">🌟 LIFESTYLE</option>
+          <option value="OTHER">📌 OTHER</option>
+        </select>
       </div>
       <div class="form-group">
         <label class="form-label">// Mission Length</label>
