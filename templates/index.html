@@ -157,7 +157,7 @@
     <div class="mh-left">
       <div class="mh-codename">// DAILY OPERATIONS //</div>
       <div class="mh-name">SOLDIER {{ user.username }}</div>
-      <div class="mh-date">{{ today.strftime('%d %b %Y').upper() }} · {{ now.strftime('%H:%M') }} HRS</div>
+      <div class="mh-date">{{ today.strftime('%d %b %Y').upper() }} · <span id="liveTime">{{ now.strftime('%H:%M') }}</span> HRS</div>
     </div>
     {% set pct  = (done_count / total_count * 100)|int if total_count else 0 %}
     {% set circ = 188 %}
@@ -354,6 +354,16 @@
 {% endblock %}
 {% block extra_js %}
 <script>
+// Live updating clock
+function updateTime() {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const mins = String(now.getMinutes()).padStart(2, '0');
+  document.getElementById('liveTime').textContent = `${hours}:${mins}`;
+}
+updateTime();
+setInterval(updateTime, 10000); // Update every 10 seconds
+
 function openModal() {
   document.getElementById('modal').classList.add('open');
   setTimeout(() => document.querySelector('#modal input[name=name]').focus(), 300);
