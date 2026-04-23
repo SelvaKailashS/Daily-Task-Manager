@@ -390,11 +390,9 @@ def profile():
                        .filter(Habit.user_id == user.id, HabitLog.done == True)\
                        .group_by(Habit.name).all()
     
-    badges = Badge.query.filter_by(user_id=user.id).order_by(Badge.earned_at.desc()).all()
-    
     return render_template('profile.html', user=user,
                            total=total, done=total, rate=rate,
-                           habits=habits, cats=cats, badges=badges)
+                           habits=habits, cats=cats)
 
 if __name__ == '__main__':
     with app.app_context():
