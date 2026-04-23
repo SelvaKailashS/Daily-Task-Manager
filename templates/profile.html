@@ -73,6 +73,33 @@
     </div>
   </div>
 
+  <!-- BADGES SECTION -->
+  {% if badges %}
+  <div class="card" style="margin-bottom:12px;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);
+                text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">// ACHIEVEMENTS UNLOCKED</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+      {% for badge in badges %}
+      <div style="background:var(--olive3);border:1px solid rgba(107,124,58,0.3);
+                  border-radius:8px;padding:12px;text-align:center;">
+        <div style="font-size:32px;margin-bottom:6px;">{{ badge.icon }}</div>
+        <div style="font-family:'Russo One',sans-serif;font-size:11px;color:var(--tan);
+                    text-transform:uppercase;letter-spacing:0.5px;line-height:1.2;">{{ badge.name }}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text3);
+                    margin-top:4px;">{{ badge.earned_at.strftime('%d %b').upper() }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <div class="card" style="margin-bottom:12px;text-align:center;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text3);
+                text-transform:uppercase;letter-spacing:1px;">
+      NO BADGES YET. COMPLETE MISSIONS TO UNLOCK ACHIEVEMENTS! 🔓
+    </div>
+  </div>
+  {% endif %}
+
   <!-- MISSION BREAKDOWN -->
   {% if cats %}
   <div class="card" style="margin-bottom:14px;">
