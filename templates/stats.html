@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}STONERS — INTEL COMMAND CENTER{% endblock %}
+{% block title %}STONERS — INTEL{% endblock %}
 {% block extra_css %}
 <style>
 .intel-header {
@@ -22,16 +22,16 @@
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-
 .controls {
   display: flex;
   gap: 8px;
   padding: 16px 20px;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
 }
 .period-btn {
-  padding: 8px 16px;
+  padding: 8px 14px;
   border: 1px solid var(--border2);
   background: transparent;
   color: var(--text2);
@@ -53,7 +53,6 @@
   border-color: var(--olive2);
   color: var(--bg);
 }
-
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -82,13 +81,6 @@
   color: var(--olive2);
   line-height: 1;
 }
-.metric-change {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  color: var(--amber);
-  margin-top: 6px;
-}
-
 .chart-section {
   padding: 20px;
   background: var(--bg);
@@ -113,7 +105,6 @@
   position: relative;
   height: 240px;
 }
-
 .comparison-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -154,7 +145,6 @@
   color: var(--olive2);
   font-weight: 700;
 }
-
 @media (max-width: 600px) {
   .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -167,13 +157,11 @@
 {% endblock %}
 {% block content %}
 
-<!-- HEADER -->
 <div class="intel-header">
   <div class="intel-title">TACTICAL ANALYTICS</div>
   <div class="intel-subtitle">// MISSION PERFORMANCE COMMAND CENTER //</div>
 </div>
 
-<!-- TIME PERIOD CONTROLS -->
 <div class="controls">
   <button class="period-btn active" onclick="switchPeriod('daily', this)">DAILY OPS</button>
   <button class="period-btn" onclick="switchPeriod('weekly', this)">WEEKLY DEBRIEF</button>
@@ -181,31 +169,29 @@
   <button class="period-btn" onclick="switchPeriod('yearly', this)">ANNUAL ASSESSMENT</button>
 </div>
 
-<!-- METRICS -->
 <div class="metrics-grid">
   <div class="metric-card">
     <div class="metric-label">Total Completions</div>
     <div class="metric-value" id="completions">{{ total_completions }}</div>
-    <div class="metric-change" id="change-completions">current period</div>
+    <div class="metric-change">current period</div>
   </div>
   <div class="metric-card">
     <div class="metric-label">Success Rate</div>
     <div class="metric-value" id="success-rate">{{ avg_rate }}%</div>
-    <div class="metric-change" id="change-success">average</div>
+    <div class="metric-change">average</div>
   </div>
   <div class="metric-card">
-    <div class="metric-label">Active Streaks</div>
-    <div class="metric-value" id="active-streaks">{{ data|length }}</div>
-    <div class="metric-change" id="change-streaks">habits</div>
+    <div class="metric-label">Active Habits</div>
+    <div class="metric-value" id="active-habits">{{ data|length }}</div>
+    <div class="metric-change">missions</div>
   </div>
   <div class="metric-card">
     <div class="metric-label">Longest Streak</div>
     <div class="metric-value" id="longest-streak">{{ longest_streak }}</div>
-    <div class="metric-change">days active</div>
+    <div class="metric-change">days</div>
   </div>
 </div>
 
-<!-- CHARTS -->
 <div class="chart-section">
   <div class="chart-card">
     <div class="chart-title">// COMPLETION TREND //</div>
@@ -222,24 +208,33 @@
   </div>
 </div>
 
-<!-- COMPARISON -->
 <div class="comparison-grid">
   <div class="comparison-card">
     <h3>🏆 Top Performers</h3>
     {% for hd in data|sort(attribute='progress', reverse=True)|list|first(4) %}
     <div class="stat-row">
-      <span class="stat-label">{{ hd.habit.emoji }} {{ hd.habit.name|truncate(16) }}</span>
+      <span class="stat-label">{{ hd.habit.emoji }} {{ hd.habit.name[:14] }}</span>
       <span class="stat-value">{{ hd.progress }}%</span>
+    </div>
+    {% else %}
+    <div class="stat-row">
+      <span class="stat-label">No data yet</span>
+      <span class="stat-value">--</span>
     </div>
     {% endfor %}
   </div>
   
   <div class="comparison-card">
-    <h3>🔥 Active Streaks</h3>
+    <h3>🔥 Longest Streaks</h3>
     {% for hd in data|sort(attribute='streak', reverse=True)|list|first(4) %}
     <div class="stat-row">
-      <span class="stat-label">{{ hd.habit.emoji }} {{ hd.habit.name|truncate(16) }}</span>
+      <span class="stat-label">{{ hd.habit.emoji }} {{ hd.habit.name[:14] }}</span>
       <span class="stat-value">{{ hd.streak }}d</span>
+    </div>
+    {% else %}
+    <div class="stat-row">
+      <span class="stat-label">No data yet</span>
+      <span class="stat-value">--</span>
     </div>
     {% endfor %}
   </div>
@@ -251,64 +246,43 @@
 <script>
 let trendChart = null;
 let habitChart = null;
-let currentPeriod = 'daily';
 
-// Sample data for different periods
 const periodData = {
   daily: {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    values: [8, 7, 9, 6, 10, 8, 7],
-    completions: {{ total_completions or 0 }},
-    success: {{ avg_rate or 0 }}
+    values: [8, 7, 9, 6, 10, 8, 7]
   },
   weekly: {
     labels: ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4'],
-    values: [52, 58, 61, 64],
-    completions: {{ (total_completions or 0) * 7 }},
-    success: {{ avg_rate or 0 }}
+    values: [52, 58, 61, 64]
   },
   monthly: {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    values: [210, 245, 267, 289, 312, 280],
-    completions: {{ (total_completions or 0) * 30 }},
-    success: {{ avg_rate or 0 }}
+    values: [210, 245, 267, 289, 312, 280]
   },
   yearly: {
     labels: ['2021', '2022', '2023', '2024', '2025', '2026'],
-    values: [1200, 1560, 1890, 2150, 2340, 1400],
-    completions: {{ (total_completions or 0) * 365 }},
-    success: {{ avg_rate or 0 }}
+    values: [1200, 1560, 1890, 2150, 2340, 1400]
   }
 };
 
 const habitNames = [
-  {%- for hd in data %}'{{ hd.habit.name|safe }}'{{ "," if not loop.last }}
+  {%- for hd in data %}'{{ hd.habit.name|replace("'", "\\'") }}'{{ "," if not loop.last }}
   {%- endfor %}
 ];
-const habitProgress = [
-  {%- for hd in data %}{{ hd.progress }}{{ "," if not loop.last }}
-  {%- endfor %}
-];
+const habitProgress = [{{ ', '.join([hd.progress|string for hd in data]) }}];
 
 function switchPeriod(period, btn) {
-  currentPeriod = period;
-  
-  // Update button states
   document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   
-  // Update metrics
   const data = periodData[period];
-  document.getElementById('completions').textContent = data.completions;
-  document.getElementById('success-rate').textContent = data.success + '%';
-  document.getElementById('change-completions').textContent = period + ' view';
+  document.getElementById('completions').textContent = Math.round(data.values.reduce((a,b) => a+b, 0) * (period === 'daily' ? 1 : period === 'weekly' ? 7 : period === 'monthly' ? 30 : 365));
   
-  // Update charts
   updateCharts(data);
 }
 
 function updateCharts(data) {
-  // Trend Chart
   if (trendChart) trendChart.destroy();
   const trendCtx = document.getElementById('trendChart').getContext('2d');
   trendChart = new Chart(trendCtx, {
@@ -331,33 +305,23 @@ function updateCharts(data) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
-      },
+      plugins: { legend: { display: false } },
       scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: '#2a2e22' },
-          ticks: { color: '#8a8570', font: { family: "'Share Tech Mono'" } }
-        },
-        x: {
-          grid: { display: false },
-          ticks: { color: '#8a8570', font: { family: "'Share Tech Mono'" } }
-        }
+        y: { beginAtZero: true, grid: { color: '#2a2e22' }, ticks: { color: '#8a8570' } },
+        x: { grid: { display: false }, ticks: { color: '#8a8570' } }
       }
     }
   });
 
-  // Habit Performance Chart
   if (habitChart) habitChart.destroy();
   const habitCtx = document.getElementById('habitChart').getContext('2d');
   habitChart = new Chart(habitCtx, {
     type: 'bar',
     data: {
-      labels: habitNames,
+      labels: habitNames.length ? habitNames : ['No habits yet'],
       datasets: [{
         label: 'Progress %',
-        data: habitProgress,
+        data: habitProgress.length ? habitProgress : [0],
         backgroundColor: '#8a9e4a',
         borderColor: '#6b7c3a',
         borderWidth: 1,
@@ -368,26 +332,15 @@ function updateCharts(data) {
       responsive: true,
       maintainAspectRatio: false,
       indexAxis: 'y',
-      plugins: {
-        legend: { display: false }
-      },
+      plugins: { legend: { display: false } },
       scales: {
-        x: {
-          beginAtZero: true,
-          max: 100,
-          grid: { color: '#2a2e22' },
-          ticks: { color: '#8a8570', font: { family: "'Share Tech Mono'" } }
-        },
-        y: {
-          grid: { display: false },
-          ticks: { color: '#8a8570', font: { family: "'Share Tech Mono'" } }
-        }
+        x: { beginAtZero: true, max: 100, grid: { color: '#2a2e22' }, ticks: { color: '#8a8570' } },
+        y: { grid: { display: false }, ticks: { color: '#8a8570' } }
       }
     }
   });
 }
 
-// Initialize
 updateCharts(periodData.daily);
 </script>
 {% endblock %}
