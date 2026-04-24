@@ -249,8 +249,8 @@ let habitChart = null;
 
 const periodData = {
   daily: {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    values: [8, 7, 9, 6, 10, 8, 7]
+    labels: {{ week_labels|safe }},
+    values: {{ week_counts|safe }}
   },
   weekly: {
     labels: ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4'],
@@ -266,11 +266,8 @@ const periodData = {
   }
 };
 
-const habitNames = [
-  {%- for hd in data %}'{{ hd.habit.name|replace("'", "\\'") }}'{{ "," if not loop.last }}
-  {%- endfor %}
-];
-const habitProgress = [{{ ', '.join([hd.progress|string for hd in data]) }}];
+const habitNames = {{ chart_labels|safe }};
+const habitProgress = {{ chart_totals|safe }};
 
 function switchPeriod(period, btn) {
   document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
