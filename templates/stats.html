@@ -258,31 +258,37 @@ const periodData = {
   daily: {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     values: [8, 7, 9, 6, 10, 8, 7],
-    completions: {{ total_completions }},
-    success: {{ avg_rate }}
+    completions: {{ total_completions or 0 }},
+    success: {{ avg_rate or 0 }}
   },
   weekly: {
     labels: ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4'],
     values: [52, 58, 61, 64],
-    completions: {{ total_completions * 7 }},
-    success: {{ avg_rate }}
+    completions: {{ (total_completions or 0) * 7 }},
+    success: {{ avg_rate or 0 }}
   },
   monthly: {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     values: [210, 245, 267, 289, 312, 280],
-    completions: {{ total_completions * 30 }},
-    success: {{ avg_rate }}
+    completions: {{ (total_completions or 0) * 30 }},
+    success: {{ avg_rate or 0 }}
   },
   yearly: {
     labels: ['2021', '2022', '2023', '2024', '2025', '2026'],
     values: [1200, 1560, 1890, 2150, 2340, 1400],
-    completions: {{ total_completions * 365 }},
-    success: {{ avg_rate }}
+    completions: {{ (total_completions or 0) * 365 }},
+    success: {{ avg_rate or 0 }}
   }
 };
 
-const habitNames = [{% for hd in data %}'{{ hd.habit.name }}'{{ "," if not loop.last }}{% endfor %}];
-const habitProgress = [{% for hd in data %}{{ hd.progress }}{{ "," if not loop.last }}{% endfor %}];
+const habitNames = [
+  {%- for hd in data %}'{{ hd.habit.name|safe }}'{{ "," if not loop.last }}
+  {%- endfor %}
+];
+const habitProgress = [
+  {%- for hd in data %}{{ hd.progress }}{{ "," if not loop.last }}
+  {%- endfor %}
+];
 
 function switchPeriod(period, btn) {
   currentPeriod = period;
