@@ -293,11 +293,7 @@ def toggle(habit_id):
     db.session.commit()
     streak = calc_streak(habit)
     
-    # Check for new badges
-    user = get_user()
-    new_badges = check_and_award_badges(user)
-    
-    return jsonify({'done': done, 'streak': streak, 'new_badges': new_badges})
+    return jsonify({'done': done, 'streak': streak})
 
 @app.route('/habit/<int:habit_id>')
 @login_required
