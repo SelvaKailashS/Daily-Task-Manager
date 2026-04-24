@@ -399,40 +399,53 @@ document.querySelector('.cd-btn').style.borderColor = '#fff';
 
 async function toggleHabit(id, btn) {
   try {
-    btn.style.opacity = '0.5';
-    btn.style.cursor = 'wait';
+    console.log('Toggling habit', id);
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
     
     const res = await fetch(`/toggle/${id}`, { 
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
+      method: 'POST'
     });
     
+    console.log('Response status:', res.status);
+    
     if (!res.ok) {
-      console.error('Error:', res.status);
+      console.error('Error response:', res.status);
+      btn.disabled = false;
       btn.style.opacity = '1';
-      btn.style.cursor = 'pointer';
+      alert('Error toggling habit');
       return;
     }
     
     const data = await res.json();
+    console.log('Data received:', data);
+    
     const card = document.getElementById(`hcard-${id}`);
     const chk = document.getElementById(`check-${id}`);
     
+    console.log('Card found:', !!card, 'Button found:', !!chk);
+    
     if (!card || !chk) {
-      console.error('Card or button not found');
+      console.error('Elements not found');
+      btn.disabled = false;
+      btn.style.opacity = '1';
       return;
     }
     
+    // Update button
     if (data.done) {
       chk.classList.add('done');
-      chk.textContent = '✓';
+      chk.innerHTML = '✓';
       card.classList.add('done');
+      console.log('Marked as done');
     } else {
       chk.classList.remove('done');
-      chk.textContent = '';
+      chk.innerHTML = '';
       card.classList.remove('done');
+      console.log('Marked as pending');
     }
     
+    // Update streak
     const sEl = card.querySelector('.mc-streak');
     if (sEl) {
       sEl.textContent = data.streak > 0 ? `🔥 ${data.streak}D STREAK` : '// START STREAK';
@@ -441,14 +454,17 @@ async function toggleHabit(id, btn) {
       } else {
         sEl.classList.remove('hot');
       }
+      console.log('Streak updated to', data.streak);
     }
     
+    btn.disabled = false;
     btn.style.opacity = '1';
-    btn.style.cursor = 'pointer';
+    
   } catch (error) {
     console.error('Toggle error:', error);
+    btn.disabled = false;
     btn.style.opacity = '1';
-    btn.style.cursor = 'pointer';
+    alert('Error: ' + error.message);
   }
 }
 </script>
