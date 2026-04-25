@@ -1,172 +1,237 @@
 {% extends 'base.html' %}
-{% block title %}INTEL{% endblock %}
+{% block title %}STONERS — INTEL{% endblock %}
 {% block extra_css %}
 <style>
-.intel-header { padding: 54px 20px 16px; background: var(--bg2); border-bottom: 2px solid var(--olive); }
-.intel-title { font-family: 'Russo One'; font-size: 26px; color: var(--tan); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
-.intel-subtitle { font-family: 'Share Tech Mono'; font-size: 10px; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; }
-.controls { display: flex; gap: 8px; padding: 16px 20px; background: var(--bg2); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-.period-btn { padding: 8px 14px; border: 1px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; text-transform: uppercase; font-size: 11px; border-radius: 3px; transition: all 0.2s; font-weight: 700; font-family: 'Share Tech Mono'; letter-spacing: 1px; }
-.period-btn:hover { border-color: var(--olive2); color: var(--olive2); }
-.period-btn.active { background: var(--olive); border-color: var(--olive2); color: var(--bg); }
-.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 20px; background: var(--bg); }
-.stat-box { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--olive); padding: 14px; border-radius: 4px; }
-.stat-num { font-family: 'Russo One'; font-size: 26px; color: var(--olive2); line-height: 1; }
-.stat-lbl { font-family: 'Share Tech Mono'; font-size: 9px; color: var(--text3); text-transform: uppercase; margin-top: 6px; }
-.chart-section { padding: 20px; background: var(--bg); }
-.chart-card { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--olive); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
-.chart-title { font-family: 'Share Tech Mono'; font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
-.chart-container { position: relative; height: 240px; }
-.habits-section { padding: 20px; background: var(--bg); }
-.habit-item { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--olive); border-radius: 4px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-.habit-name { font-family: 'Russo One'; font-size: 14px; color: var(--tan); text-transform: uppercase; }
-.habit-stat { font-family: 'Share Tech Mono'; font-size: 12px; color: var(--olive2); font-weight: bold; }
-@media (max-width: 600px) {
-  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+.stat-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-bottom: 14px;
+}
+.stat-tile {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 4px; padding: 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.stat-tile-icon { font-size: 24px; flex-shrink: 0; }
+.stat-tile-num {
+  font-family: 'Russo One', sans-serif;
+  font-size: 26px; line-height: 1; color: var(--tan);
+}
+.stat-tile-lbl {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 1px; margin-top: 2px;
+}
+.chart-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--olive);
+  border-radius: 4px; padding: 14px; margin-bottom: 12px;
+}
+.chart-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; color: var(--text2);
+  text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px;
 }
 </style>
 {% endblock %}
 {% block content %}
 
-<div class="intel-header">
-  <div class="intel-title">TACTICAL ANALYTICS</div>
-  <div class="intel-subtitle">// MISSION PERFORMANCE COMMAND CENTER //</div>
+<div class="page-header">
+  <h1>INTEL REPORT 📋</h1>
+  <p>// MISSION PERFORMANCE ANALYSIS //</p>
 </div>
 
-<div class="controls">
-  <button class="period-btn active" onclick="switchPeriod('daily', this)">DAILY OPS</button>
-  <button class="period-btn" onclick="switchPeriod('weekly', this)">WEEKLY DEBRIEF</button>
-  <button class="period-btn" onclick="switchPeriod('monthly', this)">MONTHLY REPORT</button>
-  <button class="period-btn" onclick="switchPeriod('yearly', this)">ANNUAL ASSESSMENT</button>
-</div>
+<div style="padding:14px;">
 
-<div class="stat-grid">
-  <div class="stat-box">
-    <div class="stat-num" id="completions">{{ total_completions }}</div>
-    <div class="stat-lbl">Total Completions</div>
-  </div>
-  <div class="stat-box">
-    <div class="stat-num" id="success-rate">{{ avg_rate }}%</div>
-    <div class="stat-lbl">Success Rate</div>
-  </div>
-  <div class="stat-box">
-    <div class="stat-num" id="active-habits">{{ data|length }}</div>
-    <div class="stat-lbl">Active Habits</div>
-  </div>
-  <div class="stat-box">
-    <div class="stat-num" id="longest-streak">{{ longest_streak }}</div>
-    <div class="stat-lbl">Longest Streak</div>
-  </div>
-</div>
-
-<div class="chart-section">
-  <div class="chart-card">
-    <div class="chart-title">// COMPLETION TREND //</div>
-    <div class="chart-container">
-      <canvas id="trendChart"></canvas>
+  <!-- STAT TILES — like screenshot -->
+  <div class="stat-grid">
+    <div class="stat-tile">
+      <div class="stat-tile-icon">🎯</div>
+      <div>
+        <div class="stat-tile-num" style="color:var(--olive2);">{{ data|length }}</div>
+        <div class="stat-tile-lbl">Total Habits</div>
+      </div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-icon">📋</div>
+      <div>
+        <div class="stat-tile-num" style="color:var(--amber);">{{ total_completions }}</div>
+        <div class="stat-tile-lbl">Total Completions</div>
+      </div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-icon">📈</div>
+      <div>
+        <div class="stat-tile-num" style="color:var(--green2);">{{ avg_rate }}%</div>
+        <div class="stat-tile-lbl">Avg Completion Rate</div>
+      </div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-icon">🔥</div>
+      <div>
+        <div class="stat-tile-num" style="color:var(--red2);">{{ longest_streak }}</div>
+        <div class="stat-tile-lbl">Longest Streak</div>
+      </div>
     </div>
   </div>
 
-  <div class="chart-card">
-    <div class="chart-title">// PERFORMANCE BY HABIT //</div>
-    <div class="chart-container">
-      <canvas id="habitChart"></canvas>
+  <!-- BEST PERFORMER -->
+  {% if best %}
+  <div style="background:var(--amber3);border:1px solid rgba(212,135,10,0.3);
+              border-left:3px solid var(--amber);border-radius:4px;
+              padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:14px;">
+    <div style="font-size:32px;">{{ best.habit.emoji }}</div>
+    <div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--amber);
+                  letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;">// TOP PERFORMER</div>
+      <div style="font-family:'Russo One',sans-serif;font-size:17px;color:var(--tan);
+                  text-transform:uppercase;letter-spacing:1px;">{{ best.habit.name }}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--amber);margin-top:2px;">
+        🔥 {{ best.streak }}-DAY ACTIVE STREAK
+      </div>
     </div>
   </div>
-</div>
+  {% endif %}
 
-<div class="habits-section">
-  <div style="font-family: 'Share Tech Mono'; font-size: 11px; color: var(--olive2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">🏆 TOP PERFORMERS</div>
-  {% for hd in data|sort(attribute='progress', reverse=True)|list|first(5) %}
-  <div class="habit-item">
-    <span class="habit-name">{{ hd.habit.emoji }} {{ hd.habit.name[:20] }}</span>
-    <span class="habit-stat">{{ hd.progress }}%</span>
+  <!-- CHART 1: Completions per habit -->
+  {% if data %}
+  <div class="chart-box">
+    <div class="chart-title">// COMPLETION RATES BY MISSION</div>
+    <canvas id="chartHabits" height="180"></canvas>
   </div>
-  {% endfor %}
-</div>
 
+  <!-- CHART 2: Weekly trend -->
+  <div class="chart-box">
+    <div class="chart-title">// WEEKLY COMPLETION TREND</div>
+    <canvas id="chartWeek" height="160"></canvas>
+  </div>
+  {% endif %}
+
+  <!-- MISSION LIST -->
+  {% if data %}
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);
+                text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">// ALL MISSIONS</div>
+    {% for hd in data %}
+    <a href="/habit/{{ hd.habit.id }}" style="text-decoration:none;">
+      <div class="card color-{{ hd.habit.color }}"
+           style="margin-bottom:8px;display:flex;align-items:center;gap:12px;border-left:3px solid var(--hc);">
+        <div style="width:44px;height:44px;border-radius:4px;background:var(--hcl);
+                    display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">
+          {{ hd.habit.emoji }}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:'Russo One',sans-serif;font-size:15px;color:var(--tan);
+                      text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;
+                      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ hd.habit.name }}</div>
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:5px;">
+            <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--amber);">🔥 {{ hd.streak }}D</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);">{{ hd.total }}/{{ hd.habit.goal }}</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--olive2);">{{ hd.progress }}%</span>
+          </div>
+          <div style="background:var(--border);height:3px;overflow:hidden;">
+            <div style="height:100%;background:var(--hc);width:{{ hd.progress }}%;"></div>
+          </div>
+        </div>
+        <div style="font-family:'Share Tech Mono',monospace;color:var(--text3);font-size:16px;">›</div>
+      </div>
+    </a>
+    {% endfor %}
+  {% else %}
+    <div class="empty">
+      <div class="empty-icon">📋</div>
+      <h3>NO INTEL AVAILABLE</h3>
+      <p>ASSIGN MISSIONS FROM THE OPS SCREEN.</p>
+    </div>
+  {% endif %}
+
+</div>
 {% endblock %}
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-let trendChart = null;
-let habitChart = null;
+const labels  = {{ chart_labels|safe }};
+const totals  = {{ chart_totals|safe }};
+const streaks = {{ chart_streaks|safe }};
+const wLabels = {{ week_labels|safe }};
+const wCounts = {{ week_counts|safe }};
 
-const data = {
-  daily: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], values: [8, 7, 9, 6, 10, 8, 7] },
-  weekly: { labels: ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4'], values: [52, 58, 61, 64] },
-  monthly: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], values: [210, 245, 267, 289, 312, 280] },
-  yearly: { labels: ['2021', '2022', '2023', '2024', '2025', '2026'], values: [1200, 1560, 1890, 2150, 2340, 1400] }
-};
+const olive  = '#8a9e4a';
+const oliveD = 'rgba(107,124,58,0.2)';
+const amber  = '#d4870a';
+const amberD = 'rgba(212,135,10,0.2)';
+const gridC  = 'rgba(255,255,255,0.06)';
+const textC  = '#8a8570';
 
-const habitNames = [{{ ', '.join(["'" + hd.habit.name + "'" for hd in data]) }}];
-const habitProgress = [{{ ', '.join([hd.progress|string for hd in data]) }}];
+Chart.defaults.color = textC;
+Chart.defaults.borderColor = gridC;
 
-function switchPeriod(period, btn) {
-  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  updateCharts(data[period]);
-}
-
-function updateCharts(period) {
-  if (trendChart) trendChart.destroy();
-  const trendCtx = document.getElementById('trendChart').getContext('2d');
-  trendChart = new Chart(trendCtx, {
-    type: 'line',
-    data: {
-      labels: period.labels,
-      datasets: [{
-        label: 'Completions',
-        data: period.values,
-        borderColor: '#8a9e4a',
-        backgroundColor: 'rgba(138, 158, 74, 0.1)',
-        tension: 0.3,
-        fill: true,
-        pointRadius: 5,
-        pointBackgroundColor: '#8a9e4a',
-        pointBorderColor: '#6b7c3a',
-        pointBorderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, grid: { color: '#2a2e22' }, ticks: { color: '#8a8570' } },
-        x: { grid: { display: false }, ticks: { color: '#8a8570' } }
-      }
-    }
-  });
-
-  if (habitChart) habitChart.destroy();
-  const habitCtx = document.getElementById('habitChart').getContext('2d');
-  habitChart = new Chart(habitCtx, {
+// Chart 1 — bar chart per habit
+if (labels.length > 0) {
+  new Chart(document.getElementById('chartHabits'), {
     type: 'bar',
     data: {
-      labels: habitNames.length ? habitNames : ['No habits yet'],
+      labels,
       datasets: [{
-        label: 'Progress %',
-        data: habitProgress.length ? habitProgress : [0],
-        backgroundColor: '#8a9e4a',
-        borderColor: '#6b7c3a',
+        label: 'Completions',
+        data: totals,
+        backgroundColor: olive,
+        borderColor: '#adc05a',
         borderWidth: 1,
-        borderRadius: 3
+        borderRadius: 2,
       }]
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
-      indexAxis: 'y',
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e2219',
+          borderColor: '#363b2c',
+          borderWidth: 1,
+          titleFont: { family: 'Share Tech Mono' },
+          bodyFont:  { family: 'Share Tech Mono' },
+        }
+      },
       scales: {
-        x: { beginAtZero: true, max: 100, grid: { color: '#2a2e22' }, ticks: { color: '#8a8570' } },
-        y: { grid: { display: false }, ticks: { color: '#8a8570' } }
+        x: { grid: { color: gridC }, ticks: { font: { family: 'Share Tech Mono', size: 10 } } },
+        y: { grid: { color: gridC }, ticks: { font: { family: 'Share Tech Mono', size: 10 } }, beginAtZero: true }
+      }
+    }
+  });
+
+  // Chart 2 — line chart weekly trend
+  new Chart(document.getElementById('chartWeek'), {
+    type: 'line',
+    data: {
+      labels: wLabels,
+      datasets: [{
+        label: 'Habits Done',
+        data: wCounts,
+        borderColor: amber,
+        backgroundColor: amberD,
+        pointBackgroundColor: amber,
+        pointRadius: 5,
+        tension: 0.35,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e2219',
+          borderColor: '#363b2c',
+          borderWidth: 1,
+          titleFont: { family: 'Share Tech Mono' },
+          bodyFont:  { family: 'Share Tech Mono' },
+        }
+      },
+      scales: {
+        x: { grid: { color: gridC }, ticks: { font: { family: 'Share Tech Mono', size: 10 } } },
+        y: { grid: { color: gridC }, ticks: { font: { family: 'Share Tech Mono', size: 10 }, stepSize: 1 }, beginAtZero: true }
       }
     }
   });
 }
-
-updateCharts(data.daily);
 </script>
 {% endblock %}
