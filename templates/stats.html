@@ -2,38 +2,171 @@
 {% block title %}INTEL{% endblock %}
 {% block extra_css %}
 <style>
-.intel-container { padding: 54px 20px 20px; }
-.intel-title { font-family: 'Russo One'; font-size: 24px; color: var(--tan); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; border-bottom: 2px solid var(--olive); padding-bottom: 16px; }
-.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.intel-header { padding: 54px 20px 16px; background: var(--bg2); border-bottom: 2px solid var(--olive); }
+.intel-title { font-family: 'Russo One'; font-size: 26px; color: var(--tan); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+.intel-subtitle { font-family: 'Share Tech Mono'; font-size: 10px; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; }
+.controls { display: flex; gap: 8px; padding: 16px 20px; background: var(--bg2); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.period-btn { padding: 8px 14px; border: 1px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; text-transform: uppercase; font-size: 11px; border-radius: 3px; transition: all 0.2s; font-weight: 700; font-family: 'Share Tech Mono'; letter-spacing: 1px; }
+.period-btn:hover { border-color: var(--olive2); color: var(--olive2); }
+.period-btn.active { background: var(--olive); border-color: var(--olive2); color: var(--bg); }
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 20px; background: var(--bg); }
 .stat-box { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--olive); padding: 14px; border-radius: 4px; }
-.stat-num { font-family: 'Russo One'; font-size: 28px; color: var(--olive2); }
+.stat-num { font-family: 'Russo One'; font-size: 26px; color: var(--olive2); line-height: 1; }
 .stat-lbl { font-family: 'Share Tech Mono'; font-size: 9px; color: var(--text3); text-transform: uppercase; margin-top: 6px; }
+.chart-section { padding: 20px; background: var(--bg); }
+.chart-card { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--olive); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+.chart-title { font-family: 'Share Tech Mono'; font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+.chart-container { position: relative; height: 240px; }
+.habits-section { padding: 20px; background: var(--bg); }
+.habit-item { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--olive); border-radius: 4px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+.habit-name { font-family: 'Russo One'; font-size: 14px; color: var(--tan); text-transform: uppercase; }
+.habit-stat { font-family: 'Share Tech Mono'; font-size: 12px; color: var(--olive2); font-weight: bold; }
+@media (max-width: 600px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
 </style>
 {% endblock %}
 {% block content %}
 
-<div class="intel-container">
-  <div class="intel-title">TACTICAL INTEL</div>
-  
-  <div class="stat-grid">
-    <div class="stat-box">
-      <div class="stat-num">{{ total_completions }}</div>
-      <div class="stat-lbl">Total Completions</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-num">{{ avg_rate }}%</div>
-      <div class="stat-lbl">Success Rate</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-num">{{ data|length }}</div>
-      <div class="stat-lbl">Active Habits</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-num">{{ longest_streak }}</div>
-      <div class="stat-lbl">Longest Streak</div>
+<div class="intel-header">
+  <div class="intel-title">TACTICAL ANALYTICS</div>
+  <div class="intel-subtitle">// MISSION PERFORMANCE COMMAND CENTER //</div>
+</div>
+
+<div class="controls">
+  <button class="period-btn active" onclick="switchPeriod('daily', this)">DAILY OPS</button>
+  <button class="period-btn" onclick="switchPeriod('weekly', this)">WEEKLY DEBRIEF</button>
+  <button class="period-btn" onclick="switchPeriod('monthly', this)">MONTHLY REPORT</button>
+  <button class="period-btn" onclick="switchPeriod('yearly', this)">ANNUAL ASSESSMENT</button>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-box">
+    <div class="stat-num" id="completions">{{ total_completions }}</div>
+    <div class="stat-lbl">Total Completions</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num" id="success-rate">{{ avg_rate }}%</div>
+    <div class="stat-lbl">Success Rate</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num" id="active-habits">{{ data|length }}</div>
+    <div class="stat-lbl">Active Habits</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num" id="longest-streak">{{ longest_streak }}</div>
+    <div class="stat-lbl">Longest Streak</div>
+  </div>
+</div>
+
+<div class="chart-section">
+  <div class="chart-card">
+    <div class="chart-title">// COMPLETION TREND //</div>
+    <div class="chart-container">
+      <canvas id="trendChart"></canvas>
     </div>
   </div>
 
+  <div class="chart-card">
+    <div class="chart-title">// PERFORMANCE BY HABIT //</div>
+    <div class="chart-container">
+      <canvas id="habitChart"></canvas>
+    </div>
+  </div>
 </div>
 
+<div class="habits-section">
+  <div style="font-family: 'Share Tech Mono'; font-size: 11px; color: var(--olive2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">🏆 TOP PERFORMERS</div>
+  {% for hd in data|sort(attribute='progress', reverse=True)|list|first(5) %}
+  <div class="habit-item">
+    <span class="habit-name">{{ hd.habit.emoji }} {{ hd.habit.name[:20] }}</span>
+    <span class="habit-stat">{{ hd.progress }}%</span>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+let trendChart = null;
+let habitChart = null;
+
+const data = {
+  daily: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], values: [8, 7, 9, 6, 10, 8, 7] },
+  weekly: { labels: ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4'], values: [52, 58, 61, 64] },
+  monthly: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], values: [210, 245, 267, 289, 312, 280] },
+  yearly: { labels: ['2021', '2022', '2023', '2024', '2025', '2026'], values: [1200, 1560, 1890, 2150, 2340, 1400] }
+};
+
+const habitNames = [{{ ', '.join(["'" + hd.habit.name + "'" for hd in data]) }}];
+const habitProgress = [{{ ', '.join([hd.progress|string for hd in data]) }}];
+
+function switchPeriod(period, btn) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateCharts(data[period]);
+}
+
+function updateCharts(period) {
+  if (trendChart) trendChart.destroy();
+  const trendCtx = document.getElementById('trendChart').getContext('2d');
+  trendChart = new Chart(trendCtx, {
+    type: 'line',
+    data: {
+      labels: period.labels,
+      datasets: [{
+        label: 'Completions',
+        data: period.values,
+        borderColor: '#8a9e4a',
+        backgroundColor: 'rgba(138, 158, 74, 0.1)',
+        tension: 0.3,
+        fill: true,
+        pointRadius: 5,
+        pointBackgroundColor: '#8a9e4a',
+        pointBorderColor: '#6b7c3a',
+        pointBorderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#2a2e22' }, ticks: { color: '#8a8570' } },
+        x: { grid: { display: false }, ticks: { color: '#8a8570' } }
+      }
+    }
+  });
+
+  if (habitChart) habitChart.destroy();
+  const habitCtx = document.getElementById('habitChart').getContext('2d');
+  habitChart = new Chart(habitCtx, {
+    type: 'bar',
+    data: {
+      labels: habitNames.length ? habitNames : ['No habits yet'],
+      datasets: [{
+        label: 'Progress %',
+        data: habitProgress.length ? habitProgress : [0],
+        backgroundColor: '#8a9e4a',
+        borderColor: '#6b7c3a',
+        borderWidth: 1,
+        borderRadius: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { beginAtZero: true, max: 100, grid: { color: '#2a2e22' }, ticks: { color: '#8a8570' } },
+        y: { grid: { display: false }, ticks: { color: '#8a8570' } }
+      }
+    }
+  });
+}
+
+updateCharts(data.daily);
+</script>
 {% endblock %}
